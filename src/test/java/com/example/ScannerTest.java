@@ -1,5 +1,6 @@
 package com.example;
 
+import com.example.errors.*;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import org.junit.Before;
@@ -115,13 +116,13 @@ public class ScannerTest {
     assertEquals("code", tokens.get(0).lexeme);
   }
 
-  @Test(expected = ScanError.class)
+  @Test(expected = ScannerError.class)
   public void testUnterminatedString() {
     scanner = new Scanner("\"unterminated");
     scanner.scanTokens();
   }
 
-  @Test(expected = ScanError.class)
+  @Test(expected = ScannerError.class)
   public void testUnterminatedMultilineComment() {
     scanner = new Scanner("/* unterminated");
     scanner.scanTokens();

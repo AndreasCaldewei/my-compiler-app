@@ -1,5 +1,6 @@
 package com.example;
 
+import com.example.errors.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,13 +9,10 @@ import java.util.Map;
 public class Scanner {
   private final String source;
   private final List<Token> tokens = new ArrayList<>();
+  private int start = 0;
+  private int current = 0;
+  private int line = 1;
 
-  // Current position in source code
-  private int start = 0; // Start of current token
-  private int current = 0; // Current character being scanned
-  private int line = 1; // Current line number
-
-  // Keywords mapping
   private static final Map<String, TokenType> keywords;
 
   static {
@@ -36,30 +34,19 @@ public class Scanner {
     this.source = source;
   }
 
-  /**
-   * Scans all tokens in the source code.
-   * 
-   * @return List of scanned tokens
-   */
   public List<Token> scanTokens() {
     while (!isAtEnd()) {
-      // Start of next lexeme
       start = current;
       scanToken();
     }
 
-    // Add EOF token
     tokens.add(new Token(TokenType.EOF, "", null, line));
     return tokens;
   }
 
-  /**
-   * Scans a single token and adds it to the token list.
-   */
   private void scanToken() {
     char c = advance();
     switch (c) {
-      // Single-character tokens
       case '(':
         addToken(TokenType.LEFT_PAREN);
         break;
@@ -100,7 +87,6 @@ public class Scanner {
         addToken(TokenType.MODULO);
         break;
 
-      // Two-character tokens
       case '!':
         addToken(match('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
         break;
@@ -114,37 +100,33 @@ public class Scanner {
         addToken(match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
         break;
 
-      // Logical operators
       case '&':
         if (match('&')) {
           addToken(TokenType.AND);
         } else {
-          throw new ScanError(line, "Unexpected character '&'");
+          throw error(line, "Unexpected character '&'");
         }
         break;
+
       case '|':
         if (match('|')) {
           addToken(TokenType.OR);
         } else {
-          throw new ScanError(line, "Unexpected character '|'");
+          throw error(line, "Unexpected character '|'");
         }
         break;
 
-      // Handle comments and division
       case '/':
         if (match('/')) {
-          // Single-line comment
           while (peek() != '\n' && !isAtEnd())
             advance();
         } else if (match('*')) {
-          // Multi-line comment
           multiLineComment();
         } else {
           addToken(TokenType.SLASH);
         }
         break;
 
-      // Whitespace
       case ' ':
       case '\r':
       case '\t':
@@ -154,7 +136,6 @@ public class Scanner {
         line++;
         break;
 
-      // String literals
       case '"':
         string('"');
         break;
@@ -168,15 +149,12 @@ public class Scanner {
         } else if (isAlpha(c)) {
           identifier();
         } else {
-          throw new ScanError(line, "Unexpected character '" + c + "'");
+          throw error(line, "Unexpected character '" + c + "'");
         }
         break;
     }
   }
 
-  /**
-   * Handles string literals with either single or double quotes.
-   */
   private void string(char quote) {
     StringBuilder value = new StringBuilder();
 
@@ -184,47 +162,21 @@ public class Scanner {
       if (peek() == '\n') {
         line++;
       } else if (peek() == '\\' && peekNext() == quote) {
-        advance(); // consume backslash
-        value.append(advance()); // append the quote
+        advance();
+        value.append(advance());
       } else {
         value.append(advance());
       }
     }
 
     if (isAtEnd()) {
-      throw new ScanError(line, "Unterminated string.");
+      throw error(line, "Unterminated string.");
     }
 
-    // Closing quote
     advance();
-
-    // Get string value without quotes
-    String text = value.toString();
-    addToken(TokenType.STRING, text);
+    addToken(TokenType.STRING, value.toString());
   }
 
-  /**
-   * Handles escape sequences in strings.
-   */
-  private void handleEscapeSequence() {
-    char next = peek();
-    switch (next) {
-      case 'n':
-      case 't':
-      case 'r':
-      case '\\':
-      case '\'':
-      case '"':
-        advance();
-        break;
-      default:
-        throw new ScanError(line, "Invalid escape sequence '\\" + next + "'");
-    }
-  }
-
-  /**
-   * Handles multi-line comments.
-   */
   private void multiLineComment() {
     while (!isAtEnd() && !(peek() == '*' && peekNext() == '/')) {
       if (peek() == '\n')
@@ -233,36 +185,27 @@ public class Scanner {
     }
 
     if (isAtEnd()) {
-      throw new ScanError(line, "Unterminated multi-line comment.");
+      throw error(line, "Unterminated multi-line comment.");
     }
 
-    // Consume the closing */
-    advance(); // *
-    advance(); // /
+    advance();
+    advance();
   }
 
-  /**
-   * Handles numeric literals (integers and decimals).
-   */
   private void number() {
     while (isDigit(peek()))
       advance();
 
-    // Look for decimal point
     if (peek() == '.' && isDigit(peekNext())) {
-      advance(); // consume the dot
+      advance();
       while (isDigit(peek()))
         advance();
     }
 
-    String numberStr = source.substring(start, current);
-    Double value = Double.parseDouble(numberStr);
+    Double value = Double.parseDouble(source.substring(start, current));
     addToken(TokenType.NUMBER, value);
   }
 
-  /**
-   * Handles identifiers and keywords.
-   */
   private void identifier() {
     while (isAlphaNumeric(peek()))
       advance();
@@ -274,7 +217,10 @@ public class Scanner {
     addToken(type);
   }
 
-  // Helper methods
+  private ScannerError error(int line, String message) {
+    return new ScannerError(line, message);
+  }
+
   private char advance() {
     return source.charAt(current++);
   }
@@ -323,17 +269,5 @@ public class Scanner {
 
   private boolean isAtEnd() {
     return current >= source.length();
-  }
-}
-
-/**
- * Exception class for Scanner errors.
- */
-class ScanError extends RuntimeException {
-  final int line;
-
-  ScanError(int line, String message) {
-    super(String.format("Line %d: %s", line, message));
-    this.line = line;
   }
 }
