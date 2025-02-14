@@ -29,15 +29,25 @@ public class StackMachine {
     }
   }
 
-  public void execute() {
+  public Object execute() {
+    Object lastValue = null;
     while (ip < instructions.size()) {
       Instruction instruction = instructions.get(ip);
       if (debug) {
         System.out.println("\nExecuting instruction at IP=" + ip + ": " + instruction);
       }
       executeInstruction(instruction);
+
+      // If stack is not empty after instruction, update lastValue
+      if (!stack.isEmpty()) {
+        lastValue = stack.peek();
+      }
+
       ip++;
     }
+
+    return lastValue;
+
   }
 
   private void ensureStackSize(int required) {
