@@ -120,23 +120,13 @@ public class CodeGenerator implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
   @Override
   public Void visitLogicalExpr(Expr.Logical expr) {
-    int endLabel = generateLabel();
-
     evaluate(expr.left);
+    evaluate(expr.right);
+
     if (expr.operator.type == TokenType.OR) {
-      int skipLabel = generateLabel();
-      emit("DUP"); // Wert duplizieren für den Test
-      emit("JMPT", skipLabel); // Wenn true, überspringe rechte Seite
-      emit("POP"); // Entferne duplizierten Wert falls false
-      evaluate(expr.right);
-      emit("LABEL", skipLabel);
+      emit("OR");
     } else { // AND
-      int skipLabel = generateLabel();
-      emit("DUP"); // Wert duplizieren für den Test
-      emit("JMPF", skipLabel); // Wenn false, überspringe rechte Seite
-      emit("POP"); // Entferne duplizierten Wert falls true
-      evaluate(expr.right);
-      emit("LABEL", skipLabel);
+      emit("AND");
     }
 
     return null;
