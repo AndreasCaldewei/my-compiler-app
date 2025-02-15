@@ -26,6 +26,7 @@ public class CompilerTest {
 
   @Test(timeout = 2000)
   public void testSimpleFunctionDefinitionAndCall() {
+    compiler.setDebug(true);
     Object result = compiler.execute(
         "function add(a, b) { return a + b; } " +
             "add(3, 4);");

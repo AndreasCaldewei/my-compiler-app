@@ -31,7 +31,10 @@ public class StackMachine {
 
   public Object execute() {
     Object lastValue = null;
-    while (ip < instructions.size()) {
+    int maxIterations = instructions.size() * 2; // Prevent infinite loops
+    int iterationCount = 0;
+
+    while (ip < instructions.size() && iterationCount < maxIterations) {
       Instruction instruction = instructions.get(ip);
       if (debug) {
         System.out.println("\nExecuting instruction at IP=" + ip + ": " + instruction);
@@ -44,10 +47,14 @@ public class StackMachine {
       }
 
       ip++;
+      iterationCount++;
+    }
+
+    if (iterationCount >= maxIterations) {
+      throw new RuntimeException("Possible infinite loop detected");
     }
 
     return lastValue;
-
   }
 
   private void ensureStackSize(int required) {
@@ -171,16 +178,29 @@ public class StackMachine {
       }
 
       // Control flow
-      case "JMP":
-        ip = (Integer) instruction.operand - 1;
+      case "JMP": {
+        Integer labelTarget = (Integer) instruction.operand;
+        boolean found = false;
+        for (int j = 0; j < instructions.size(); j++) {
+          Instruction inst = instructions.get(j);
+          if (inst.operation.equals("LABEL") && inst.operand.equals(labelTarget)) {
+            ip = j;
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          throw new RuntimeException("Label " + labelTarget + " not found");
+        }
         break;
+      }
       case "JMPF":
         if (!isTruthy(stack.pop())) {
           ip = (Integer) instruction.operand - 1;
         }
         break;
       case "JMPT":
-        if (isTruthy(stack.pop())) {
+        if (scopes.size() > 1) {
           ip = (Integer) instruction.operand - 1;
         }
         break;
@@ -194,13 +214,26 @@ public class StackMachine {
           throw new RuntimeException("Can only call functions");
         }
 
-        callStack.push(ip); // Speichere Rücksprungadresse auf dem Call Stack
+        // Save the current instruction pointer on the call stack
+        // Use a negative offset to prevent re-executing the same sequence
+        callStack.push(ip + 1);
+
+        // Jump to the function's start
         ip = (Integer) callee - 1;
         break;
       }
+
       case "RET": {
+        // Pop the return value from the stack
         Object returnValue = stack.pop();
-        ip = callStack.pop(); // Hole Rücksprungadresse vom Call Stack
+
+        // Restore the instruction pointer from the call stack
+        if (callStack.isEmpty()) {
+          throw new RuntimeException("Return without a call");
+        }
+        ip = callStack.pop();
+
+        // Push the return value back onto the stack
         stack.push(returnValue);
         break;
       }
@@ -236,15 +269,24 @@ public class StackMachine {
   }
 
   private Object lookupVariable(String name) {
+    // First, check if it's a function
+    if (functions.containsKey(name)) {
+      return functions.get(name);
+    }
+
+    // Then check scopes
     for (int i = scopes.size() - 1; i >= 0; i--) {
       Map<String, Object> scope = scopes.get(i);
       if (scope.containsKey(name)) {
         return scope.get(name);
       }
     }
+
+    // Then check globals
     if (globals.containsKey(name)) {
       return globals.get(name);
     }
+
     throw new RuntimeException("Undefined variable '" + name + "'.");
   }
 

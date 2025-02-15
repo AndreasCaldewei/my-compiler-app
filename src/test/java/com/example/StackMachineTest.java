@@ -128,4 +128,26 @@ public class StackMachineTest {
 
     assertEquals(1.0, machine.getNumberFromStack(), 0.001);
   }
+
+  @Test
+  public void testJumpAndLabel() {
+    // Create instructions with jump and label
+    instructions.add(new Instruction("PUSH", 10.0)); // Push initial value
+    instructions.add(new Instruction("JMP", 2)); // Jump to label 2
+
+    // This block should be skipped
+    instructions.add(new Instruction("PUSH", 20.0));
+
+    // Label 2 - this is where we want to jump
+    instructions.add(new Instruction("LABEL", 2));
+    instructions.add(new Instruction("PUSH", 30.0)); // Push another value
+    instructions.add(new Instruction("ADD")); // Should add 10.0 and 30.0
+
+    machine = new StackMachine(instructions);
+    machine.setDebug(true);
+    Object result = machine.execute();
+
+    // Verify the result is 40.0 (10.0 + 30.0)
+    assertEquals(40.0, ((Number) result).doubleValue(), 0.001);
+  }
 }
