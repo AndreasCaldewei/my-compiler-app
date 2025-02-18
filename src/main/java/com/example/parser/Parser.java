@@ -3,7 +3,6 @@ package com.example.parser;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.errors.*;
 import com.example.parser.*;
 
 public class Parser {

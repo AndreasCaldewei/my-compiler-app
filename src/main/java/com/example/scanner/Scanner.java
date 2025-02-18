@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.example.errors.ScannerError;
 import com.example.parser.Token;
 import com.example.parser.TokenType;
 

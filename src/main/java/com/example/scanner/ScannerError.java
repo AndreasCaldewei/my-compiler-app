@@ -1,4 +1,4 @@
-package com.example.errors;
+package com.example.scanner;
 
 /**
  * Exception class for Scanner errors.
