@@ -6,12 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.parser.*;
-import com.example.parser.*;
-import com.example.stack.*;
 
 public class CodeGenerator implements Expression.Visitor<Void>, Statement.Visitor<Void> {
   private final List<Instruction> instructions = new ArrayList<>();
-  private final Map<String, Integer> locals = new HashMap<>();
   private int labelCounter = 0;
 
   public List<Instruction> generateCode(List<Statement> statements) {
@@ -21,11 +18,11 @@ public class CodeGenerator implements Expression.Visitor<Void>, Statement.Visito
     return instructions;
   }
 
-  private void emit(String operation) {
+  private void emit(Operation operation) {
     instructions.add(new Instruction(operation, null));
   }
 
-  private void emit(String operation, Object operand) {
+  private void emit(Operation operation, Object operand) {
     instructions.add(new Instruction(operation, operand));
   }
 
@@ -48,38 +45,38 @@ public class CodeGenerator implements Expression.Visitor<Void>, Statement.Visito
 
     switch (expr.operator.type) {
       case PLUS:
-        emit("ADD");
+        emit(Operation.ADD);
         break;
       case MINUS:
-        emit("SUB");
+        emit(Operation.SUB);
         break;
       case STAR:
-        emit("MUL");
+        emit(Operation.MUL);
         break;
       case SLASH:
-        emit("DIV");
+        emit(Operation.DIV);
         break;
       case MODULO:
-        emit("MOD");
+        emit(Operation.MOD);
         break;
       case EQUAL_EQUAL:
-        emit("EQ");
+        emit(Operation.EQ);
         break;
       case BANG_EQUAL:
-        emit("EQ");
-        emit("NOT");
+        emit(Operation.EQ);
+        emit(Operation.NOT);
         break;
       case LESS:
-        emit("LT");
+        emit(Operation.LT);
         break;
       case GREATER:
-        emit("GT");
+        emit(Operation.GT);
         break;
       case LESS_EQUAL:
-        emit("LE");
+        emit(Operation.LE);
         break;
       case GREATER_EQUAL:
-        emit("GE");
+        emit(Operation.GE);
         break;
     }
     return null;
@@ -93,7 +90,7 @@ public class CodeGenerator implements Expression.Visitor<Void>, Statement.Visito
 
   @Override
   public Void visitLiteralExpression(Expression.Literal expr) {
-    emit("PUSH", expr.value);
+    emit(Operation.PUSH, expr.value);
     return null;
   }
 
@@ -102,10 +99,10 @@ public class CodeGenerator implements Expression.Visitor<Void>, Statement.Visito
     evaluate(expr.right);
     switch (expr.operator.type) {
       case MINUS:
-        emit("NEG");
+        emit(Operation.NEG);
         break;
       case BANG:
-        emit("NOT");
+        emit(Operation.NOT);
         break;
     }
     return null;
@@ -113,15 +110,15 @@ public class CodeGenerator implements Expression.Visitor<Void>, Statement.Visito
 
   @Override
   public Void visitVariableExpression(Expression.Variable expr) {
-    emit("LOAD", expr.name.lexeme);
+    emit(Operation.LOAD, expr.name.lexeme);
     return null;
   }
 
   @Override
   public Void visitAssignExpression(Expression.Assign expr) {
     evaluate(expr.value);
-    emit("STORE", expr.name.lexeme);
-    emit("LOAD", expr.name.lexeme); // Für Zuweisungsausdrücke wie a = b
+    emit(Operation.STORE, expr.name.lexeme);
+    emit(Operation.LOAD, expr.name.lexeme);
     return null;
   }
 
@@ -131,9 +128,9 @@ public class CodeGenerator implements Expression.Visitor<Void>, Statement.Visito
     evaluate(expr.right);
 
     if (expr.operator.type == TokenType.OR) {
-      emit("OR");
+      emit(Operation.OR);
     } else { // AND
-      emit("AND");
+      emit(Operation.AND);
     }
 
     return null;
@@ -141,20 +138,18 @@ public class CodeGenerator implements Expression.Visitor<Void>, Statement.Visito
 
   @Override
   public Void visitCallExpression(Expression.Call expr) {
-    // Argumente auswerten und auf den Stack legen
     for (Expression argument : expr.arguments) {
       evaluate(argument);
     }
-    // Funktion aufrufen
     evaluate(expr.callee);
-    emit("CALL", expr.arguments.size());
+    emit(Operation.CALL, expr.arguments.size());
     return null;
   }
 
   @Override
   public Void visitExpressionStmt(Statement.Expression stmt) {
     evaluate(stmt.expression);
-    emit("POP"); // Discard the result
+    emit(Operation.POP);
     return null;
   }
 
@@ -164,17 +159,17 @@ public class CodeGenerator implements Expression.Visitor<Void>, Statement.Visito
     int endLabel = generateLabel();
 
     evaluate(stmt.condition);
-    emit("JMPF", elseLabel);
+    emit(Operation.JMPF, elseLabel);
 
     execute(stmt.thenBranch);
-    emit("JMP", endLabel);
+    emit(Operation.JMP, endLabel);
 
-    emit("LABEL", elseLabel);
+    emit(Operation.LABEL, elseLabel);
     if (stmt.elseBranch != null) {
       execute(stmt.elseBranch);
     }
 
-    emit("LABEL", endLabel);
+    emit(Operation.LABEL, endLabel);
     return null;
   }
 
@@ -183,24 +178,24 @@ public class CodeGenerator implements Expression.Visitor<Void>, Statement.Visito
     int startLabel = generateLabel();
     int endLabel = generateLabel();
 
-    emit("LABEL", startLabel);
+    emit(Operation.LABEL, startLabel);
     evaluate(stmt.condition);
-    emit("JMPF", endLabel);
+    emit(Operation.JMPF, endLabel);
 
     execute(stmt.body);
-    emit("JMP", startLabel);
+    emit(Operation.JMP, startLabel);
 
-    emit("LABEL", endLabel);
+    emit(Operation.LABEL, endLabel);
     return null;
   }
 
   @Override
   public Void visitBlockStmt(Statement.Block stmt) {
-    emit("BEGINSCOPE");
+    emit(Operation.BEGINSCOPE);
     for (Statement statement : stmt.statements) {
       execute(statement);
     }
-    emit("ENDSCOPE");
+    emit(Operation.ENDSCOPE);
     return null;
   }
 
@@ -209,36 +204,29 @@ public class CodeGenerator implements Expression.Visitor<Void>, Statement.Visito
     int functionLabel = generateLabel();
     int afterFunction = generateLabel();
 
-    // Springe über die Funktionsdefinition
-    emit("JMP", afterFunction);
+    emit(Operation.JMP, afterFunction);
 
-    // Funktionseintritt markieren
-    emit("LABEL", functionLabel);
-    emit("BEGINSCOPE");
+    emit(Operation.LABEL, functionLabel);
+    emit(Operation.BEGINSCOPE);
 
-    // Parameter auf lokale Variablen mappen
     int paramCount = stmt.params.size();
     for (int i = paramCount - 1; i >= 0; i--) {
       Token param = stmt.params.get(i);
-      emit("STORE", param.lexeme);
+      emit(Operation.STORE, param.lexeme);
     }
 
-    // Funktionskörper
     for (Statement statement : stmt.body) {
       execute(statement);
     }
 
-    // Impliziter Return null wenn kein expliziter Return
-    emit("PUSH", null);
-    emit("RET");
-    emit("ENDSCOPE");
+    emit(Operation.PUSH, null);
+    emit(Operation.RET);
+    emit(Operation.ENDSCOPE);
 
-    // Nach der Funktion fortfahren
-    emit("LABEL", afterFunction);
+    emit(Operation.LABEL, afterFunction);
 
-    // Funktionsname an Adresse binden
-    emit("PUSHFUN", functionLabel);
-    emit("STOREFUN", stmt.name.lexeme);
+    emit(Operation.PUSHFUN, functionLabel);
+    emit(Operation.STOREFUN, stmt.name.lexeme);
 
     return null;
   }
@@ -248,9 +236,9 @@ public class CodeGenerator implements Expression.Visitor<Void>, Statement.Visito
     if (stmt.value != null) {
       evaluate(stmt.value);
     } else {
-      emit("PUSH", null);
+      emit(Operation.PUSH, null);
     }
-    emit("RET");
+    emit(Operation.RET);
     return null;
   }
 
@@ -259,9 +247,9 @@ public class CodeGenerator implements Expression.Visitor<Void>, Statement.Visito
     if (stmt.initializer != null) {
       evaluate(stmt.initializer);
     } else {
-      emit("PUSH", null);
+      emit(Operation.PUSH, null);
     }
-    emit("STORE", stmt.name.lexeme);
+    emit(Operation.STORE, stmt.name.lexeme);
     return null;
   }
 }
