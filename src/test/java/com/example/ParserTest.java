@@ -1,6 +1,7 @@
 package com.example;
 
-import com.example.errors.*;
+import com.example.parser.*;
+
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;

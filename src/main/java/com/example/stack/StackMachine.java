@@ -6,22 +6,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Stack;
+import com.example.code.Operation;
 
 public class StackMachine {
   private final Stack<Object> stack = new Stack<>();
-  private final Stack<Integer> callStack = new Stack<>(); // Neuer Stack für Rücksprungadressen
+  private final Stack<Integer> callStack = new Stack<>();
   private final Map<String, Object> globals = new HashMap<>();
   private final List<Map<String, Object>> scopes = new ArrayList<>();
   private final Map<String, Integer> functions = new HashMap<>();
   private final List<Instruction> instructions;
   private int ip = 0;
+  private boolean debug = false;
 
   public StackMachine(List<Instruction> instructions) {
     this.instructions = instructions;
     scopes.add(new HashMap<>()); // Global scope
   }
-
-  private boolean debug = false;
 
   public void setDebug(boolean debug) {
     this.debug = debug;
@@ -46,7 +46,6 @@ public class StackMachine {
       }
       executeInstruction(instruction);
 
-      // If stack is not empty after instruction, update lastValue
       if (!stack.isEmpty()) {
         lastValue = stack.peek();
       }
@@ -73,122 +72,127 @@ public class StackMachine {
 
     switch (instruction.operation) {
       // Stack operations
-      case "PUSH":
+      case PUSH:
         stack.push(instruction.operand);
         break;
-      case "POP":
+      case POP:
         stack.pop();
-        break;
-      case "DUP":
-        stack.push(stack.peek());
         break;
 
       // Arithmetic operations
-      case "ADD": {
+      case ADD: {
         ensureStackSize(2);
         debugPrint("Before ADD operation");
-
-        // Pop in richtiger Reihenfolge
-        Double addend = ((Number) stack.pop()).doubleValue(); // Zweiter Operand
-        Double augend = ((Number) stack.pop()).doubleValue(); // Erster Operand
+        Double addend = ((Number) stack.pop()).doubleValue();
+        Double augend = ((Number) stack.pop()).doubleValue();
         Double result = augend + addend;
-
         debugPrint("ADD: " + augend + " + " + addend + " = " + result);
         stack.push(result);
         break;
       }
-      case "SUB": {
-        Double b = (Double) stack.pop();
-        Double a = (Double) stack.pop();
+      case SUB: {
+        ensureStackSize(2);
+        Double b = ((Number) stack.pop()).doubleValue();
+        Double a = ((Number) stack.pop()).doubleValue();
         stack.push(a - b);
         break;
       }
-      case "MUL": {
-        Double b = (Double) stack.pop();
-        Double a = (Double) stack.pop();
+      case MUL: {
+        ensureStackSize(2);
+        Double b = ((Number) stack.pop()).doubleValue();
+        Double a = ((Number) stack.pop()).doubleValue();
         stack.push(a * b);
         break;
       }
-      case "DIV": {
-        Double b = (Double) stack.pop();
-        Double a = (Double) stack.pop();
+      case DIV: {
+        ensureStackSize(2);
+        Double b = ((Number) stack.pop()).doubleValue();
+        Double a = ((Number) stack.pop()).doubleValue();
         if (b == 0)
           throw new RuntimeException("Division by zero");
         stack.push(a / b);
         break;
       }
-      case "MOD": {
-        Double b = (Double) stack.pop();
-        Double a = (Double) stack.pop();
+      case MOD: {
+        ensureStackSize(2);
+        Double b = ((Number) stack.pop()).doubleValue();
+        Double a = ((Number) stack.pop()).doubleValue();
         if (b == 0)
           throw new RuntimeException("Modulo by zero");
         stack.push(a % b);
         break;
       }
-      case "NEG": {
-        Double a = (Double) stack.pop();
+      case NEG: {
+        ensureStackSize(1);
+        Double a = ((Number) stack.pop()).doubleValue();
         stack.push(-a);
         break;
       }
 
       // Logical operations
-      case "NOT":
+      case NOT:
+        ensureStackSize(1);
         stack.push(!isTruthy(stack.pop()));
         break;
-      case "EQ": {
+      case EQ: {
+        ensureStackSize(2);
         Object b = stack.pop();
         Object a = stack.pop();
         stack.push(Objects.equals(a, b));
         break;
       }
-      case "LT": {
-        Double b = (Double) stack.pop();
-        Double a = (Double) stack.pop();
+      case LT: {
+        ensureStackSize(2);
+        Double b = ((Number) stack.pop()).doubleValue();
+        Double a = ((Number) stack.pop()).doubleValue();
         stack.push(a < b);
         break;
       }
-      case "GT": {
-        Double b = (Double) stack.pop();
-        Double a = (Double) stack.pop();
+      case GT: {
+        ensureStackSize(2);
+        Double b = ((Number) stack.pop()).doubleValue();
+        Double a = ((Number) stack.pop()).doubleValue();
         stack.push(a > b);
         break;
       }
-      case "LE": {
-        Double b = (Double) stack.pop();
-        Double a = (Double) stack.pop();
+      case LE: {
+        ensureStackSize(2);
+        Double b = ((Number) stack.pop()).doubleValue();
+        Double a = ((Number) stack.pop()).doubleValue();
         stack.push(a <= b);
         break;
       }
-      case "GE": {
-        Double b = (Double) stack.pop();
-        Double a = (Double) stack.pop();
+      case GE: {
+        ensureStackSize(2);
+        Double b = ((Number) stack.pop()).doubleValue();
+        Double a = ((Number) stack.pop()).doubleValue();
         stack.push(a >= b);
         break;
       }
 
       // Variable operations
-      case "LOAD": {
-        String name = (String) instruction.operand;
+      case LOAD: {
+        String name = instruction.getStringOperand();
         Object value = lookupVariable(name);
         stack.push(value);
         break;
       }
-      case "STORE": {
+      case STORE: {
         ensureStackSize(1);
-        String name = (String) instruction.operand;
-        Object value = stack.pop(); // Wert vom Stack nehmen
+        String name = instruction.getStringOperand();
+        Object value = stack.pop();
         storeVariable(name, value);
         debugPrint("STORE " + name + " = " + value);
         break;
       }
 
       // Control flow
-      case "JMP": {
-        Integer labelTarget = (Integer) instruction.operand;
+      case JMP: {
+        int labelTarget = instruction.getLabelOperand();
         boolean found = false;
         for (int j = 0; j < instructions.size(); j++) {
           Instruction inst = instructions.get(j);
-          if (inst.operation.equals("LABEL") && inst.operand.equals(labelTarget)) {
+          if (inst.operation == Operation.LABEL && inst.getLabelOperand() == labelTarget) {
             ip = j;
             found = true;
             break;
@@ -199,66 +203,58 @@ public class StackMachine {
         }
         break;
       }
-      case "JMPF":
+      case JMPF: {
+        ensureStackSize(1);
         if (!isTruthy(stack.pop())) {
-          ip = (Integer) instruction.operand - 1;
+          ip = instruction.getLabelOperand() - 1;
         }
         break;
-      case "JMPT":
-        if (scopes.size() > 1) {
-          ip = (Integer) instruction.operand - 1;
-        }
-        break;
-      case "LABEL":
+      }
+      case LABEL:
         break;
 
       // Function operations
-      case "CALL": {
+      case CALL: {
+        ensureStackSize(1);
         Object callee = stack.pop();
         if (!(callee instanceof Integer)) {
           throw new RuntimeException("Can only call functions");
         }
-
-        // Save the current instruction pointer on the call stack
         callStack.push(ip);
-
-        // Jump to the function's start
         ip = (Integer) callee;
         break;
       }
-
-      case "RET": {
-        // Check if we're in a function call
+      case RET: {
         if (callStack.isEmpty()) {
           throw new RuntimeException("Return without a call");
         }
-
-        // Restore the instruction pointer from the call stack
         ip = callStack.pop();
-
-        // Implicit return - the value is already on the stack
         break;
       }
-      case "PUSHFUN":
+      case PUSHFUN:
         stack.push(instruction.operand);
         break;
-      case "STOREFUN": {
-        String name = (String) instruction.operand;
+      case STOREFUN: {
+        String name = instruction.getStringOperand();
+        ensureStackSize(1);
         Integer address = (Integer) stack.pop();
         functions.put(name, address);
         break;
       }
 
-      // Scope handling
-      case "BEGINSCOPE":
+      // Scope operations
+      case BEGINSCOPE:
         scopes.add(new HashMap<>());
         break;
-      case "ENDSCOPE":
+      case ENDSCOPE:
         if (scopes.size() <= 1) {
           throw new RuntimeException("Cannot end global scope");
         }
         scopes.remove(scopes.size() - 1);
         break;
+
+      default:
+        throw new RuntimeException("Unknown operation: " + instruction.operation);
     }
   }
 
@@ -271,12 +267,10 @@ public class StackMachine {
   }
 
   private Object lookupVariable(String name) {
-    // First, check if it's a function
     if (functions.containsKey(name)) {
       return functions.get(name);
     }
 
-    // Then check scopes
     for (int i = scopes.size() - 1; i >= 0; i--) {
       Map<String, Object> scope = scopes.get(i);
       if (scope.containsKey(name)) {
@@ -284,7 +278,6 @@ public class StackMachine {
       }
     }
 
-    // Then check globals
     if (globals.containsKey(name)) {
       return globals.get(name);
     }
@@ -293,14 +286,12 @@ public class StackMachine {
   }
 
   private void storeVariable(String name, Object value) {
-    // In einem neuen Scope wird eine neue Variable erstellt
     if (scopes.size() > 1) {
       Map<String, Object> currentScope = scopes.get(scopes.size() - 1);
       currentScope.put(name, value);
       return;
     }
 
-    // Im globalen Scope überprüfen wir, ob die Variable existiert
     Map<String, Object> globalScope = scopes.get(0);
     globalScope.put(name, value);
   }

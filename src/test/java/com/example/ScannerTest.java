@@ -1,10 +1,11 @@
 package com.example;
 
-import com.example.errors.*;
 import static org.junit.Assert.*;
 import org.junit.Test;
-import org.junit.Before;
 import java.util.List;
+
+import com.example.scanner.*;
+import com.example.parser.*;
 
 public class ScannerTest {
   private Scanner scanner;

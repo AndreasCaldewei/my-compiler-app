@@ -1,11 +1,13 @@
 package com.example.stack;
 
+import com.example.code.Operation;
+
 public class Instruction {
-  public final String operation;
+  public final Operation operation;
   public final Object operand;
   public final OperandType operandType;
 
-  public Instruction(String operation, Object operand) {
+  public Instruction(Operation operation, Object operand) {
     if (operation == null) {
       throw new IllegalArgumentException("Operation cannot be null");
     }
@@ -14,8 +16,8 @@ public class Instruction {
     this.operandType = OperandType.getType(operand);
   }
 
-  // Konstruktor für Operationen ohne Operanden (wie ADD, SUB, etc.)
-  public Instruction(String operation) {
+  // Constructor for operations without operands (like ADD, SUB, etc.)
+  public Instruction(Operation operation) {
     if (operation == null) {
       throw new IllegalArgumentException("Operation cannot be null");
     }
@@ -33,11 +35,11 @@ public class Instruction {
     if (hasOperand()) {
       return String.format("%s %s (%s)", operation, operand, operandType);
     } else {
-      return operation;
+      return operation.toString();
     }
   }
 
-  // Hilfsmethoden zur Type-Safety
+  // Helper methods for type safety
   public double getNumberOperand() {
     if (operandType != OperandType.NUMBER) {
       throw new IllegalStateException("Operand is not a number, it is: " + operandType);

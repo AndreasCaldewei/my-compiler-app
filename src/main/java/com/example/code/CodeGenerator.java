@@ -1,11 +1,10 @@
 package com.example.code;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.example.parser.*;
+import com.example.stack.Instruction;
 
 public class CodeGenerator implements Expression.Visitor<Void>, Statement.Visitor<Void> {
   private final List<Instruction> instructions = new ArrayList<>();
