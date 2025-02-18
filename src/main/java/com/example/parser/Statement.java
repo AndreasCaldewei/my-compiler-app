@@ -22,9 +22,9 @@ public abstract class Statement {
   public abstract <R> R accept(Visitor<R> visitor);
 
   public static class Block extends Statement {
-    final List<Statement> statements;
+    public final List<Statement> statements;
 
-    Block(List<Statement> statements) {
+    public Block(List<Statement> statements) {
       this.statements = statements;
     }
 
@@ -35,9 +35,9 @@ public abstract class Statement {
   }
 
   public static class Expression extends Statement {
-    final Expression expression;
+    public final com.example.parser.Expression expression;
 
-    Expression(Expression expression) {
+    public Expression(com.example.parser.Expression expression) {
       this.expression = expression;
     }
 
@@ -47,12 +47,12 @@ public abstract class Statement {
     }
   }
 
-  public class Function extends Statement {
-    final Token name;
-    final List<Token> params;
-    final List<Statement> body;
+  public static class Function extends Statement {
+    public final Token name;
+    public final List<Token> params;
+    public final List<Statement> body;
 
-    Function(Token name, List<Token> params, List<Statement> body) {
+    public Function(Token name, List<Token> params, List<Statement> body) {
       this.name = name;
       this.params = params;
       this.body = body;
@@ -65,11 +65,11 @@ public abstract class Statement {
   }
 
   public static class If extends Statement {
-    public final Expression condition;
+    public final com.example.parser.Expression condition;
     public final Statement thenBranch;
     public final Statement elseBranch;
 
-    If(Expression condition, Statement thenBranch, Statement elseBranch) {
+    public If(com.example.parser.Expression condition, Statement thenBranch, Statement elseBranch) {
       this.condition = condition;
       this.thenBranch = thenBranch;
       this.elseBranch = elseBranch;
@@ -82,10 +82,10 @@ public abstract class Statement {
   }
 
   public static class Return extends Statement {
-    final Token keyword;
-    final Expression value;
+    public final Token keyword;
+    public final com.example.parser.Expression value;
 
-    Return(Token keyword, Expression value) {
+    public Return(Token keyword, com.example.parser.Expression value) {
       this.keyword = keyword;
       this.value = value;
     }
@@ -97,11 +97,11 @@ public abstract class Statement {
   }
 
   public static class Var extends Statement {
-    final Token name;
-    final Expression initializer;
-    final boolean isConst;
+    public final Token name;
+    public final com.example.parser.Expression initializer;
+    public final boolean isConst;
 
-    Var(Token name, Expression initializer, boolean isConst) {
+    public Var(Token name, com.example.parser.Expression initializer, boolean isConst) {
       this.name = name;
       this.initializer = initializer;
       this.isConst = isConst;
@@ -114,10 +114,10 @@ public abstract class Statement {
   }
 
   public static class While extends Statement {
-    public final Expression condition;
+    public final com.example.parser.Expression condition;
     public final Statement body;
 
-    While(Expression condition, Statement body) {
+    public While(com.example.parser.Expression condition, Statement body) {
       this.condition = condition;
       this.body = body;
     }
@@ -127,5 +127,4 @@ public abstract class Statement {
       return visitor.visitWhileStmt(this);
     }
   }
-
 }

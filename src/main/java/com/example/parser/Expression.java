@@ -33,7 +33,7 @@ public abstract class Expression {
     }
 
     @Override
-    <R> R accept(Visitor<R> visitor) {
+    public <R> R accept(Visitor<R> visitor) {
       return visitor.visitAssignExpression(this);
     }
   }
@@ -50,7 +50,7 @@ public abstract class Expression {
     }
 
     @Override
-    <R> R accept(Visitor<R> visitor) {
+    public <R> R accept(Visitor<R> visitor) {
       return visitor.visitBinaryExpression(this);
     }
   }
@@ -67,7 +67,7 @@ public abstract class Expression {
     }
 
     @Override
-    <R> R accept(Visitor<R> visitor) {
+    public <R> R accept(Visitor<R> visitor) {
       return visitor.visitCallExpression(this);
     }
   }
@@ -80,7 +80,7 @@ public abstract class Expression {
     }
 
     @Override
-    <R> R accept(Visitor<R> visitor) {
+    public <R> R accept(Visitor<R> visitor) {
       return visitor.visitGroupingExpression(this);
     }
   }
@@ -93,7 +93,7 @@ public abstract class Expression {
     }
 
     @Override
-    <R> R accept(Visitor<R> visitor) {
+    public <R> R accept(Visitor<R> visitor) {
       return visitor.visitLiteralExpression(this);
     }
   }
@@ -110,7 +110,7 @@ public abstract class Expression {
     }
 
     @Override
-    <R> R accept(Visitor<R> visitor) {
+    public <R> R accept(Visitor<R> visitor) {
       return visitor.visitLogicalExpression(this);
     }
   }
@@ -125,7 +125,7 @@ public abstract class Expression {
     }
 
     @Override
-    <R> R accept(Visitor<R> visitor) {
+    public <R> R accept(Visitor<R> visitor) {
       return visitor.visitUnaryExpression(this);
     }
   }
@@ -138,7 +138,7 @@ public abstract class Expression {
     }
 
     @Override
-    <R> R accept(Visitor<R> visitor) {
+    public <R> R accept(Visitor<R> visitor) {
       return visitor.visitVariableExpression(this);
     }
   }
