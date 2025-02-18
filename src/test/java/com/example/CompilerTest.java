@@ -5,6 +5,7 @@ import org.junit.Before;
 import static org.junit.Assert.*;
 import org.junit.Assert;
 import java.util.concurrent.TimeUnit;
+import com.example.compiler.*;
 
 public class CompilerTest {
   private Compiler compiler;

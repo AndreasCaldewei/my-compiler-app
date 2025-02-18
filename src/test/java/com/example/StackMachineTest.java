@@ -7,6 +7,10 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.code.Operation;
+import com.example.stack.Instruction;
+import com.example.stack.StackMachine;
+
 public class StackMachineTest {
   private StackMachine stackMachine;
   private List<Instruction> instructions;
@@ -20,9 +24,9 @@ public class StackMachineTest {
   public void testBasicArithmeticOperations() {
     // Test addition
     instructions.clear();
-    instructions.add(new Instruction("PUSH", 5.0));
-    instructions.add(new Instruction("PUSH", 3.0));
-    instructions.add(new Instruction("ADD", null));
+    instructions.add(new Instruction(Operation.PUSH, 5.0));
+    instructions.add(new Instruction(Operation.PUSH, 3.0));
+    instructions.add(new Instruction(Operation.ADD, null));
 
     stackMachine = new StackMachine(instructions);
     stackMachine.setDebug(true);
@@ -32,9 +36,9 @@ public class StackMachineTest {
 
     // Test subtraction
     instructions.clear();
-    instructions.add(new Instruction("PUSH", 10.0));
-    instructions.add(new Instruction("PUSH", 4.0));
-    instructions.add(new Instruction("SUB", null));
+    instructions.add(new Instruction(Operation.PUSH, 10.0));
+    instructions.add(new Instruction(Operation.PUSH, 4.0));
+    instructions.add(new Instruction(Operation.SUB, null));
 
     stackMachine = new StackMachine(instructions);
     result = stackMachine.execute();
@@ -43,9 +47,9 @@ public class StackMachineTest {
 
     // Test multiplication
     instructions.clear();
-    instructions.add(new Instruction("PUSH", 5.0));
-    instructions.add(new Instruction("PUSH", 3.0));
-    instructions.add(new Instruction("MUL", null));
+    instructions.add(new Instruction(Operation.PUSH, 5.0));
+    instructions.add(new Instruction(Operation.PUSH, 3.0));
+    instructions.add(new Instruction(Operation.MUL, null));
 
     stackMachine = new StackMachine(instructions);
     result = stackMachine.execute();
@@ -54,9 +58,9 @@ public class StackMachineTest {
 
     // Test division
     instructions.clear();
-    instructions.add(new Instruction("PUSH", 10.0));
-    instructions.add(new Instruction("PUSH", 2.0));
-    instructions.add(new Instruction("DIV", null));
+    instructions.add(new Instruction(Operation.PUSH, 10.0));
+    instructions.add(new Instruction(Operation.PUSH, 2.0));
+    instructions.add(new Instruction(Operation.DIV, null));
 
     stackMachine = new StackMachine(instructions);
     result = stackMachine.execute();
@@ -67,9 +71,9 @@ public class StackMachineTest {
   @Test(expected = RuntimeException.class)
   public void testDivisionByZero() {
     instructions.clear();
-    instructions.add(new Instruction("PUSH", 10.0));
-    instructions.add(new Instruction("PUSH", 0.0));
-    instructions.add(new Instruction("DIV", null));
+    instructions.add(new Instruction(Operation.PUSH, 10.0));
+    instructions.add(new Instruction(Operation.PUSH, 0.0));
+    instructions.add(new Instruction(Operation.DIV, null));
 
     stackMachine = new StackMachine(instructions);
     stackMachine.execute();
@@ -79,9 +83,9 @@ public class StackMachineTest {
   public void testComparisonOperations() {
     // Test equality
     instructions.clear();
-    instructions.add(new Instruction("PUSH", 5.0));
-    instructions.add(new Instruction("PUSH", 5.0));
-    instructions.add(new Instruction("EQ", null));
+    instructions.add(new Instruction(Operation.PUSH, 5.0));
+    instructions.add(new Instruction(Operation.PUSH, 5.0));
+    instructions.add(new Instruction(Operation.EQ, null));
 
     stackMachine = new StackMachine(instructions);
     Object result = stackMachine.execute();
@@ -90,9 +94,9 @@ public class StackMachineTest {
 
     // Test less than
     instructions.clear();
-    instructions.add(new Instruction("PUSH", 3.0));
-    instructions.add(new Instruction("PUSH", 5.0));
-    instructions.add(new Instruction("LT", null));
+    instructions.add(new Instruction(Operation.PUSH, 3.0));
+    instructions.add(new Instruction(Operation.PUSH, 5.0));
+    instructions.add(new Instruction(Operation.LT, null));
 
     stackMachine = new StackMachine(instructions);
     result = stackMachine.execute();
@@ -101,9 +105,9 @@ public class StackMachineTest {
 
     // Test greater than
     instructions.clear();
-    instructions.add(new Instruction("PUSH", 7.0));
-    instructions.add(new Instruction("PUSH", 5.0));
-    instructions.add(new Instruction("GT", null));
+    instructions.add(new Instruction(Operation.PUSH, 7.0));
+    instructions.add(new Instruction(Operation.PUSH, 5.0));
+    instructions.add(new Instruction(Operation.GT, null));
 
     stackMachine = new StackMachine(instructions);
     result = stackMachine.execute();
@@ -115,9 +119,9 @@ public class StackMachineTest {
   public void testVariableOperations() {
     // Test store and load
     instructions.clear();
-    instructions.add(new Instruction("PUSH", 42.0));
-    instructions.add(new Instruction("STORE", "x"));
-    instructions.add(new Instruction("LOAD", "x"));
+    instructions.add(new Instruction(Operation.PUSH, 42.0));
+    instructions.add(new Instruction(Operation.STORE, "x"));
+    instructions.add(new Instruction(Operation.LOAD, "x"));
 
     stackMachine = new StackMachine(instructions);
     Object result = stackMachine.execute();
@@ -129,27 +133,27 @@ public class StackMachineTest {
   public void testSimpleFunctionCall() {
     // Create a simple add function
     instructions.clear();
-    instructions.add(new Instruction("JMP", 1)); // Skip function definition
+    instructions.add(new Instruction(Operation.JMP, 1)); // Skip function definition
 
     // Function definition (address 1)
-    instructions.add(new Instruction("LABEL", 0));
-    instructions.add(new Instruction("BEGINSCOPE"));
-    instructions.add(new Instruction("STORE", "b"));
-    instructions.add(new Instruction("STORE", "a"));
-    instructions.add(new Instruction("LOAD", "a"));
-    instructions.add(new Instruction("LOAD", "b"));
-    instructions.add(new Instruction("ADD"));
-    instructions.add(new Instruction("RET"));
-    instructions.add(new Instruction("ENDSCOPE"));
+    instructions.add(new Instruction(Operation.LABEL, 0));
+    instructions.add(new Instruction(Operation.BEGINSCOPE, null));
+    instructions.add(new Instruction(Operation.STORE, "b"));
+    instructions.add(new Instruction(Operation.STORE, "a"));
+    instructions.add(new Instruction(Operation.LOAD, "a"));
+    instructions.add(new Instruction(Operation.LOAD, "b"));
+    instructions.add(new Instruction(Operation.ADD, null));
+    instructions.add(new Instruction(Operation.RET, null));
+    instructions.add(new Instruction(Operation.ENDSCOPE, null));
 
-    // Main program (address 10)
-    instructions.add(new Instruction("LABEL", 1));
-    instructions.add(new Instruction("PUSHFUN", 1)); // Function address
-    instructions.add(new Instruction("STOREFUN", "add"));
-    instructions.add(new Instruction("PUSH", 3.0));
-    instructions.add(new Instruction("PUSH", 4.0));
-    instructions.add(new Instruction("LOAD", "add"));
-    instructions.add(new Instruction("CALL", 2));
+    // Main program
+    instructions.add(new Instruction(Operation.LABEL, 1));
+    instructions.add(new Instruction(Operation.PUSHFUN, 1));
+    instructions.add(new Instruction(Operation.STOREFUN, "add"));
+    instructions.add(new Instruction(Operation.PUSH, 3.0));
+    instructions.add(new Instruction(Operation.PUSH, 4.0));
+    instructions.add(new Instruction(Operation.LOAD, "add"));
+    instructions.add(new Instruction(Operation.CALL, 2));
 
     stackMachine = new StackMachine(instructions);
     stackMachine.setDebug(true);
@@ -162,8 +166,8 @@ public class StackMachineTest {
   public void testLogicalOperations() {
     // Test NOT
     instructions.clear();
-    instructions.add(new Instruction("PUSH", true));
-    instructions.add(new Instruction("NOT", null));
+    instructions.add(new Instruction(Operation.PUSH, true));
+    instructions.add(new Instruction(Operation.NOT, null));
 
     stackMachine = new StackMachine(instructions);
     Object result = stackMachine.execute();
@@ -172,11 +176,11 @@ public class StackMachineTest {
 
     // Test complex logical combination
     instructions.clear();
-    instructions.add(new Instruction("PUSH", 5.0));
-    instructions.add(new Instruction("PUSH", 3.0));
-    instructions.add(new Instruction("GT", null));
-    instructions.add(new Instruction("PUSH", true));
-    instructions.add(new Instruction("EQ", null));
+    instructions.add(new Instruction(Operation.PUSH, 5.0));
+    instructions.add(new Instruction(Operation.PUSH, 3.0));
+    instructions.add(new Instruction(Operation.GT, null));
+    instructions.add(new Instruction(Operation.PUSH, true));
+    instructions.add(new Instruction(Operation.EQ, null));
 
     stackMachine = new StackMachine(instructions);
     result = stackMachine.execute();
@@ -186,11 +190,11 @@ public class StackMachineTest {
 
   @Test
   public void testStackManipulation() {
-    // Test DUP
+    // Test stack operations
     instructions.clear();
-    instructions.add(new Instruction("PUSH", 42.0));
-    instructions.add(new Instruction("DUP", null));
-    instructions.add(new Instruction("ADD", null));
+    instructions.add(new Instruction(Operation.PUSH, 42.0));
+    instructions.add(new Instruction(Operation.PUSH, 42.0));
+    instructions.add(new Instruction(Operation.ADD, null));
 
     stackMachine = new StackMachine(instructions);
     Object result = stackMachine.execute();
@@ -199,9 +203,9 @@ public class StackMachineTest {
 
     // Test POP
     instructions.clear();
-    instructions.add(new Instruction("PUSH", 10.0));
-    instructions.add(new Instruction("PUSH", 20.0));
-    instructions.add(new Instruction("POP", null));
+    instructions.add(new Instruction(Operation.PUSH, 10.0));
+    instructions.add(new Instruction(Operation.PUSH, 20.0));
+    instructions.add(new Instruction(Operation.POP, null));
 
     stackMachine = new StackMachine(instructions);
     result = stackMachine.execute();
@@ -213,14 +217,14 @@ public class StackMachineTest {
   public void testScopeHandling() {
     // Test basic scope creation and variable shadowing
     instructions.clear();
-    instructions.add(new Instruction("PUSH", 10.0));
-    instructions.add(new Instruction("STORE", "x"));
-    instructions.add(new Instruction("BEGINSCOPE"));
-    instructions.add(new Instruction("PUSH", 20.0));
-    instructions.add(new Instruction("STORE", "x"));
-    instructions.add(new Instruction("LOAD", "x"));
-    instructions.add(new Instruction("ENDSCOPE"));
-    instructions.add(new Instruction("LOAD", "x"));
+    instructions.add(new Instruction(Operation.PUSH, 10.0));
+    instructions.add(new Instruction(Operation.STORE, "x"));
+    instructions.add(new Instruction(Operation.BEGINSCOPE, null));
+    instructions.add(new Instruction(Operation.PUSH, 20.0));
+    instructions.add(new Instruction(Operation.STORE, "x"));
+    instructions.add(new Instruction(Operation.LOAD, "x"));
+    instructions.add(new Instruction(Operation.ENDSCOPE, null));
+    instructions.add(new Instruction(Operation.LOAD, "x"));
 
     stackMachine = new StackMachine(instructions);
     Object[] results = new Object[2];
@@ -238,7 +242,7 @@ public class StackMachineTest {
   @Test(expected = RuntimeException.class)
   public void testUndefinedVariableAccess() {
     instructions.clear();
-    instructions.add(new Instruction("LOAD", "undefined_var"));
+    instructions.add(new Instruction(Operation.LOAD, "undefined_var"));
 
     stackMachine = new StackMachine(instructions);
     stackMachine.execute();
