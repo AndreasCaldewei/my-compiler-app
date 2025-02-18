@@ -1,10 +1,13 @@
-package com.example;
+package com.example.scanner;
 
-import com.example.errors.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.example.errors.ScannerError;
+import com.example.parser.Token;
+import com.example.parser.TokenType;
 
 public class Scanner {
   private final String source;

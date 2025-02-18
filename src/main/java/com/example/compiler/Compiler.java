@@ -1,8 +1,14 @@
-package com.example;
+package com.example.compiler;
 
-import com.example.errors.ScannerError;
-import com.example.errors.ParseError;
 import java.util.List;
+
+import com.example.code.CodeGenerator;
+import com.example.parser.Parser;
+import com.example.parser.Statement;
+import com.example.parser.Token;
+import com.example.scanner.Scanner;
+import com.example.stack.Instruction;
+import com.example.stack.StackMachine;
 
 public class Compiler {
   private boolean debug = false;
@@ -25,7 +31,7 @@ public class Compiler {
 
     // Parse tokens into an Abstract Syntax Tree
     Parser parser = new Parser(tokens);
-    List<Stmt> statements = parser.parse();
+    List<Statement> statements = parser.parse();
 
     // Generate instructions
     CodeGenerator codeGenerator = new CodeGenerator();

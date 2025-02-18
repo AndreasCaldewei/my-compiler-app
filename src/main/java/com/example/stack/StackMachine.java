@@ -1,6 +1,11 @@
-package com.example;
+package com.example.stack;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Stack;
 
 public class StackMachine {
   private final Stack<Object> stack = new Stack<>();
@@ -215,26 +220,23 @@ public class StackMachine {
         }
 
         // Save the current instruction pointer on the call stack
-        // Use a negative offset to prevent re-executing the same sequence
-        callStack.push(ip + 1);
+        callStack.push(ip);
 
         // Jump to the function's start
-        ip = (Integer) callee - 1;
+        ip = (Integer) callee;
         break;
       }
 
       case "RET": {
-        // Pop the return value from the stack
-        Object returnValue = stack.pop();
-
-        // Restore the instruction pointer from the call stack
+        // Check if we're in a function call
         if (callStack.isEmpty()) {
           throw new RuntimeException("Return without a call");
         }
+
+        // Restore the instruction pointer from the call stack
         ip = callStack.pop();
 
-        // Push the return value back onto the stack
-        stack.push(returnValue);
+        // Implicit return - the value is already on the stack
         break;
       }
       case "PUSHFUN":

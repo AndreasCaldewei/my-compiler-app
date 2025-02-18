@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StackMachineTest {
-  private StackMachine machine;
+  private StackMachine stackMachine;
   private List<Instruction> instructions;
 
   @Before
@@ -17,137 +17,230 @@ public class StackMachineTest {
   }
 
   @Test
-  public void testAddOperation() {
-    instructions.add(new Instruction("PUSH", 5.0)); // Erster Operand
-    instructions.add(new Instruction("PUSH", 3.0)); // Zweiter Operand
-    instructions.add(new Instruction("ADD")); // 5 + 3 sollte 8 ergeben
+  public void testBasicArithmeticOperations() {
+    // Test addition
+    instructions.clear();
+    instructions.add(new Instruction("PUSH", 5.0));
+    instructions.add(new Instruction("PUSH", 3.0));
+    instructions.add(new Instruction("ADD", null));
 
-    machine = new StackMachine(instructions);
-    machine.setDebug(true);
-    machine.execute();
+    stackMachine = new StackMachine(instructions);
+    stackMachine.setDebug(true);
+    Object result = stackMachine.execute();
 
-    assertEquals(8.0, machine.getNumberFromStack(), 0.001);
+    assertEquals(8.0, result);
+
+    // Test subtraction
+    instructions.clear();
+    instructions.add(new Instruction("PUSH", 10.0));
+    instructions.add(new Instruction("PUSH", 4.0));
+    instructions.add(new Instruction("SUB", null));
+
+    stackMachine = new StackMachine(instructions);
+    result = stackMachine.execute();
+
+    assertEquals(6.0, result);
+
+    // Test multiplication
+    instructions.clear();
+    instructions.add(new Instruction("PUSH", 5.0));
+    instructions.add(new Instruction("PUSH", 3.0));
+    instructions.add(new Instruction("MUL", null));
+
+    stackMachine = new StackMachine(instructions);
+    result = stackMachine.execute();
+
+    assertEquals(15.0, result);
+
+    // Test division
+    instructions.clear();
+    instructions.add(new Instruction("PUSH", 10.0));
+    instructions.add(new Instruction("PUSH", 2.0));
+    instructions.add(new Instruction("DIV", null));
+
+    stackMachine = new StackMachine(instructions);
+    result = stackMachine.execute();
+
+    assertEquals(5.0, result);
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void testDivisionByZero() {
+    instructions.clear();
+    instructions.add(new Instruction("PUSH", 10.0));
+    instructions.add(new Instruction("PUSH", 0.0));
+    instructions.add(new Instruction("DIV", null));
+
+    stackMachine = new StackMachine(instructions);
+    stackMachine.execute();
   }
 
   @Test
-  public void testSimpleFunction() {
-    // Function: add(a, b) { return a + b; }
-    // Calling: add(5, 3) should return 8
+  public void testComparisonOperations() {
+    // Test equality
+    instructions.clear();
+    instructions.add(new Instruction("PUSH", 5.0));
+    instructions.add(new Instruction("PUSH", 5.0));
+    instructions.add(new Instruction("EQ", null));
 
-    // Springe über die Funktionsdefinition
-    instructions.add(new Instruction("JMP", 8));
+    stackMachine = new StackMachine(instructions);
+    Object result = stackMachine.execute();
 
-    // Funktionsdefinition (ab Position 1)
-    instructions.add(new Instruction("BEGINSCOPE"));
-    instructions.add(new Instruction("STORE", "a")); // Ersten Parameter speichern (5.0)
-    instructions.add(new Instruction("STORE", "b")); // Zweiten Parameter speichern (3.0)
-    instructions.add(new Instruction("LOAD", "a")); // Lade 5.0
-    instructions.add(new Instruction("LOAD", "b")); // Lade 3.0
-    instructions.add(new Instruction("ADD")); // 5.0 + 3.0 = 8.0
-    instructions.add(new Instruction("RET"));
+    assertEquals(true, result);
 
-    // Funktion im globalen Bereich speichern
-    instructions.add(new Instruction("PUSHFUN", 1));
-    instructions.add(new Instruction("STOREFUN", "add"));
+    // Test less than
+    instructions.clear();
+    instructions.add(new Instruction("PUSH", 3.0));
+    instructions.add(new Instruction("PUSH", 5.0));
+    instructions.add(new Instruction("LT", null));
 
-    // Funktionsaufruf add(5, 3)
-    instructions.add(new Instruction("PUSH", 5.0)); // Erster Parameter
-    instructions.add(new Instruction("PUSH", 3.0)); // Zweiter Parameter
-    instructions.add(new Instruction("PUSHFUN", 1));
-    instructions.add(new Instruction("CALL", 2));
+    stackMachine = new StackMachine(instructions);
+    result = stackMachine.execute();
 
-    machine = new StackMachine(instructions);
+    assertEquals(true, result);
 
-    // Debug-Ausgabe hinzufügen
-    machine.setDebug(true);
+    // Test greater than
+    instructions.clear();
+    instructions.add(new Instruction("PUSH", 7.0));
+    instructions.add(new Instruction("PUSH", 5.0));
+    instructions.add(new Instruction("GT", null));
 
-    machine.execute();
+    stackMachine = new StackMachine(instructions);
+    result = stackMachine.execute();
 
-    assertEquals(8.0, machine.getNumberFromStack(), 0.001);
-  }
-
-  @Test
-  public void testBasicStackOperations() {
-    instructions.add(new Instruction("PUSH", 42.0));
-    instructions.add(new Instruction("DUP"));
-    instructions.add(new Instruction("POP"));
-
-    machine = new StackMachine(instructions);
-    machine.execute();
-
-    assertEquals(42.0, machine.getNumberFromStack(), 0.001);
-  }
-
-  @Test
-  public void testArithmeticOperations() {
-    // 3 + (4 * 2) = 11
-    instructions.add(new Instruction("PUSH", 3.0)); // Push 3
-    instructions.add(new Instruction("PUSH", 4.0)); // Push 4
-    instructions.add(new Instruction("PUSH", 2.0)); // Push 2
-    instructions.add(new Instruction("MUL")); // Multiply 4 * 2
-    instructions.add(new Instruction("ADD")); // Add 3 + 8
-
-    machine = new StackMachine(instructions);
-    machine.execute();
-
-    assertEquals(11.0, machine.getNumberFromStack(), 0.001);
+    assertEquals(true, result);
   }
 
   @Test
   public void testVariableOperations() {
-    instructions.add(new Instruction("PUSH", 5.0));
+    // Test store and load
+    instructions.clear();
+    instructions.add(new Instruction("PUSH", 42.0));
     instructions.add(new Instruction("STORE", "x"));
     instructions.add(new Instruction("LOAD", "x"));
-    instructions.add(new Instruction("PUSH", 3.0));
+
+    stackMachine = new StackMachine(instructions);
+    Object result = stackMachine.execute();
+
+    assertEquals(42.0, result);
+  }
+
+  @Test
+  public void testSimpleFunctionCall() {
+    // Create a simple add function
+    instructions.clear();
+    instructions.add(new Instruction("JMP", 1)); // Skip function definition
+
+    // Function definition (address 1)
+    instructions.add(new Instruction("LABEL", 0));
+    instructions.add(new Instruction("BEGINSCOPE"));
+    instructions.add(new Instruction("STORE", "b"));
+    instructions.add(new Instruction("STORE", "a"));
+    instructions.add(new Instruction("LOAD", "a"));
+    instructions.add(new Instruction("LOAD", "b"));
     instructions.add(new Instruction("ADD"));
-    instructions.add(new Instruction("STORE", "y"));
-    instructions.add(new Instruction("LOAD", "y"));
+    instructions.add(new Instruction("RET"));
+    instructions.add(new Instruction("ENDSCOPE"));
 
-    machine = new StackMachine(instructions);
-    machine.execute();
+    // Main program (address 10)
+    instructions.add(new Instruction("LABEL", 1));
+    instructions.add(new Instruction("PUSHFUN", 1)); // Function address
+    instructions.add(new Instruction("STOREFUN", "add"));
+    instructions.add(new Instruction("PUSH", 3.0));
+    instructions.add(new Instruction("PUSH", 4.0));
+    instructions.add(new Instruction("LOAD", "add"));
+    instructions.add(new Instruction("CALL", 2));
 
-    assertEquals(8.0, machine.getNumberFromStack(), 0.001);
+    stackMachine = new StackMachine(instructions);
+    stackMachine.setDebug(true);
+    Object result = stackMachine.execute();
+
+    assertEquals(7.0, result);
+  }
+
+  @Test
+  public void testLogicalOperations() {
+    // Test NOT
+    instructions.clear();
+    instructions.add(new Instruction("PUSH", true));
+    instructions.add(new Instruction("NOT", null));
+
+    stackMachine = new StackMachine(instructions);
+    Object result = stackMachine.execute();
+
+    assertEquals(false, result);
+
+    // Test complex logical combination
+    instructions.clear();
+    instructions.add(new Instruction("PUSH", 5.0));
+    instructions.add(new Instruction("PUSH", 3.0));
+    instructions.add(new Instruction("GT", null));
+    instructions.add(new Instruction("PUSH", true));
+    instructions.add(new Instruction("EQ", null));
+
+    stackMachine = new StackMachine(instructions);
+    result = stackMachine.execute();
+
+    assertEquals(true, result);
+  }
+
+  @Test
+  public void testStackManipulation() {
+    // Test DUP
+    instructions.clear();
+    instructions.add(new Instruction("PUSH", 42.0));
+    instructions.add(new Instruction("DUP", null));
+    instructions.add(new Instruction("ADD", null));
+
+    stackMachine = new StackMachine(instructions);
+    Object result = stackMachine.execute();
+
+    assertEquals(84.0, result);
+
+    // Test POP
+    instructions.clear();
+    instructions.add(new Instruction("PUSH", 10.0));
+    instructions.add(new Instruction("PUSH", 20.0));
+    instructions.add(new Instruction("POP", null));
+
+    stackMachine = new StackMachine(instructions);
+    result = stackMachine.execute();
+
+    assertEquals(10.0, result);
   }
 
   @Test
   public void testScopeHandling() {
-    instructions.add(new Instruction("PUSH", 1.0));
-    instructions.add(new Instruction("STORE", "x")); // x = 1 in global scope
+    // Test basic scope creation and variable shadowing
+    instructions.clear();
+    instructions.add(new Instruction("PUSH", 10.0));
+    instructions.add(new Instruction("STORE", "x"));
+    instructions.add(new Instruction("BEGINSCOPE"));
+    instructions.add(new Instruction("PUSH", 20.0));
+    instructions.add(new Instruction("STORE", "x"));
+    instructions.add(new Instruction("LOAD", "x"));
+    instructions.add(new Instruction("ENDSCOPE"));
+    instructions.add(new Instruction("LOAD", "x"));
 
-    instructions.add(new Instruction("BEGINSCOPE")); // Enter new scope
-    instructions.add(new Instruction("PUSH", 2.0));
-    instructions.add(new Instruction("STORE", "x")); // x = 2 in local scope
-    instructions.add(new Instruction("LOAD", "x")); // Load x from local scope (should be 2)
-    instructions.add(new Instruction("POP")); // Remove the 2 from stack
-    instructions.add(new Instruction("ENDSCOPE")); // Exit local scope
+    stackMachine = new StackMachine(instructions);
+    Object[] results = new Object[2];
 
-    instructions.add(new Instruction("LOAD", "x")); // Load x from global scope (should be 1)
+    stackMachine.setDebug(true);
+    for (int i = 0; i < 2; i++) {
+      results[i] = stackMachine.peekStack();
+      stackMachine.execute();
+    }
 
-    machine = new StackMachine(instructions);
-    machine.execute();
-
-    assertEquals(1.0, machine.getNumberFromStack(), 0.001);
+    assertEquals(20.0, results[0]);
+    assertEquals(10.0, results[1]);
   }
 
-  @Test
-  public void testJumpAndLabel() {
-    // Create instructions with jump and label
-    instructions.add(new Instruction("PUSH", 10.0)); // Push initial value
-    instructions.add(new Instruction("JMP", 2)); // Jump to label 2
+  @Test(expected = RuntimeException.class)
+  public void testUndefinedVariableAccess() {
+    instructions.clear();
+    instructions.add(new Instruction("LOAD", "undefined_var"));
 
-    // This block should be skipped
-    instructions.add(new Instruction("PUSH", 20.0));
-
-    // Label 2 - this is where we want to jump
-    instructions.add(new Instruction("LABEL", 2));
-    instructions.add(new Instruction("PUSH", 30.0)); // Push another value
-    instructions.add(new Instruction("ADD")); // Should add 10.0 and 30.0
-
-    machine = new StackMachine(instructions);
-    machine.setDebug(true);
-    Object result = machine.execute();
-
-    // Verify the result is 40.0 (10.0 + 30.0)
-    assertEquals(40.0, ((Number) result).doubleValue(), 0.001);
+    stackMachine = new StackMachine(instructions);
+    stackMachine.execute();
   }
 }

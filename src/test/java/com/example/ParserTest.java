@@ -32,7 +32,7 @@ public class ParserTest {
   public void testEmptyProgram() {
     addToken(TokenType.EOF);
     parser = new Parser(tokens);
-    List<Stmt> statements = parser.parse();
+    List<Statement> statements = parser.parse();
     assertTrue(statements.isEmpty());
   }
 
@@ -47,14 +47,14 @@ public class ParserTest {
     addToken(TokenType.EOF);
 
     parser = new Parser(tokens);
-    List<Stmt> statements = parser.parse();
+    List<Statement> statements = parser.parse();
 
     assertEquals(1, statements.size());
-    assertTrue(statements.get(0) instanceof Stmt.Var);
-    Stmt.Var varStmt = (Stmt.Var) statements.get(0);
+    assertTrue(statements.get(0) instanceof Statement.Var);
+    Statement.Var varStmt = (Statement.Var) statements.get(0);
     assertEquals("x", varStmt.name.lexeme);
-    assertTrue(varStmt.initializer instanceof Expr.Literal);
-    assertEquals(42.0, ((Expr.Literal) varStmt.initializer).value);
+    assertTrue(varStmt.initializer instanceof Expression.Literal);
+    assertEquals(42.0, ((Expression.Literal) varStmt.initializer).value);
   }
 
   @Test
@@ -68,13 +68,13 @@ public class ParserTest {
     addToken(TokenType.EOF);
 
     parser = new Parser(tokens);
-    List<Stmt> statements = parser.parse();
+    List<Statement> statements = parser.parse();
 
     assertEquals(1, statements.size());
-    assertTrue(statements.get(0) instanceof Stmt.Var);
-    Stmt.Var varStmt = (Stmt.Var) statements.get(0);
+    assertTrue(statements.get(0) instanceof Statement.Var);
+    Statement.Var varStmt = (Statement.Var) statements.get(0);
     assertTrue(varStmt.isConst);
-    assertEquals("hello", ((Expr.Literal) varStmt.initializer).value);
+    assertEquals("hello", ((Expression.Literal) varStmt.initializer).value);
   }
 
   @Test
@@ -92,11 +92,11 @@ public class ParserTest {
     addToken(TokenType.EOF);
 
     parser = new Parser(tokens);
-    List<Stmt> statements = parser.parse();
+    List<Statement> statements = parser.parse();
 
     assertEquals(1, statements.size());
-    assertTrue(statements.get(0) instanceof Stmt.Function);
-    Stmt.Function funcStmt = (Stmt.Function) statements.get(0);
+    assertTrue(statements.get(0) instanceof Statement.Function);
+    Statement.Function funcStmt = (Statement.Function) statements.get(0);
     assertEquals("add", funcStmt.name.lexeme);
     assertEquals(2, funcStmt.params.size());
   }
@@ -118,10 +118,10 @@ public class ParserTest {
     addToken(TokenType.EOF);
 
     parser = new Parser(tokens);
-    List<Stmt> statements = parser.parse();
+    List<Statement> statements = parser.parse();
 
     assertEquals(1, statements.size());
-    assertTrue(statements.get(0) instanceof Stmt.If);
+    assertTrue(statements.get(0) instanceof Statement.If);
   }
 
   @Test
@@ -136,10 +136,10 @@ public class ParserTest {
     addToken(TokenType.EOF);
 
     parser = new Parser(tokens);
-    List<Stmt> statements = parser.parse();
+    List<Statement> statements = parser.parse();
 
     assertEquals(1, statements.size());
-    assertTrue(statements.get(0) instanceof Stmt.While);
+    assertTrue(statements.get(0) instanceof Statement.While);
   }
 
   @Test(expected = ParseError.class)
@@ -183,11 +183,11 @@ public class ParserTest {
     addToken(TokenType.EOF);
 
     parser = new Parser(tokens);
-    List<Stmt> statements = parser.parse();
+    List<Statement> statements = parser.parse();
 
     assertEquals(1, statements.size());
-    assertTrue(statements.get(0) instanceof Stmt.Var);
-    Stmt.Var varStmt = (Stmt.Var) statements.get(0);
-    assertTrue(varStmt.initializer instanceof Expr.Binary);
+    assertTrue(statements.get(0) instanceof Statement.Var);
+    Statement.Var varStmt = (Statement.Var) statements.get(0);
+    assertTrue(varStmt.initializer instanceof Expression.Binary);
   }
 }

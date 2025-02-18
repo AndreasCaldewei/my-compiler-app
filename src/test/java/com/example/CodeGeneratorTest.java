@@ -17,7 +17,7 @@ public class CodeGeneratorTest {
     Scanner scanner = new Scanner(source);
     List<Token> tokens = scanner.scanTokens();
     Parser parser = new Parser(tokens);
-    List<Stmt> statements = parser.parse();
+    List<Statement> statements = parser.parse();
     return generator.generateCode(statements);
   }
 

@@ -1,14 +1,21 @@
-package com.example;
+package com.example.code;
 
-import java.util.*;
+import java.lang.classfile.Instruction;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class CodeGenerator implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
+import com.example.parser.*;
+import com.example.parser.*;
+
+public class CodeGenerator implements Expression.Visitor<Void>, Statement.Visitor<Void> {
   private final List<Instruction> instructions = new ArrayList<>();
   private final Map<String, Integer> locals = new HashMap<>();
   private int labelCounter = 0;
 
-  public List<Instruction> generateCode(List<Stmt> statements) {
-    for (Stmt stmt : statements) {
+  public List<Instruction> generateCode(List<Statement> statements) {
+    for (Statement stmt : statements) {
       execute(stmt);
     }
     return instructions;
@@ -26,16 +33,16 @@ public class CodeGenerator implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     return labelCounter++;
   }
 
-  private void execute(Stmt stmt) {
+  private void execute(Statement stmt) {
     stmt.accept(this);
   }
 
-  private void evaluate(Expr expr) {
+  private void evaluate(Expression expr) {
     expr.accept(this);
   }
 
   @Override
-  public Void visitBinaryExpr(Expr.Binary expr) {
+  public Void visitBinaryExpression(Expression.Binary expr) {
     evaluate(expr.left);
     evaluate(expr.right);
 
@@ -79,19 +86,19 @@ public class CodeGenerator implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   }
 
   @Override
-  public Void visitGroupingExpr(Expr.Grouping expr) {
+  public Void visitGroupingExpression(Expression.Grouping expr) {
     evaluate(expr.expression);
     return null;
   }
 
   @Override
-  public Void visitLiteralExpr(Expr.Literal expr) {
+  public Void visitLiteralExpression(Expression.Literal expr) {
     emit("PUSH", expr.value);
     return null;
   }
 
   @Override
-  public Void visitUnaryExpr(Expr.Unary expr) {
+  public Void visitUnaryExpression(Expression.Unary expr) {
     evaluate(expr.right);
     switch (expr.operator.type) {
       case MINUS:
@@ -105,13 +112,13 @@ public class CodeGenerator implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   }
 
   @Override
-  public Void visitVariableExpr(Expr.Variable expr) {
+  public Void visitVariableExpression(Expression.Variable expr) {
     emit("LOAD", expr.name.lexeme);
     return null;
   }
 
   @Override
-  public Void visitAssignExpr(Expr.Assign expr) {
+  public Void visitAssignExpression(Expression.Assign expr) {
     evaluate(expr.value);
     emit("STORE", expr.name.lexeme);
     emit("LOAD", expr.name.lexeme); // Für Zuweisungsausdrücke wie a = b
@@ -119,7 +126,7 @@ public class CodeGenerator implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   }
 
   @Override
-  public Void visitLogicalExpr(Expr.Logical expr) {
+  public Void visitLogicalExpression(Expression.Logical expr) {
     evaluate(expr.left);
     evaluate(expr.right);
 
@@ -133,9 +140,9 @@ public class CodeGenerator implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   }
 
   @Override
-  public Void visitCallExpr(Expr.Call expr) {
+  public Void visitCallExpression(Expression.Call expr) {
     // Argumente auswerten und auf den Stack legen
-    for (Expr argument : expr.arguments) {
+    for (Expression argument : expr.arguments) {
       evaluate(argument);
     }
     // Funktion aufrufen
@@ -145,14 +152,14 @@ public class CodeGenerator implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   }
 
   @Override
-  public Void visitExpressionStmt(Stmt.Expression stmt) {
+  public Void visitExpressionStmt(Statement.Expression stmt) {
     evaluate(stmt.expression);
     emit("POP"); // Ergebnis verwerfen
     return null;
   }
 
   @Override
-  public Void visitIfStmt(Stmt.If stmt) {
+  public Void visitIfStmt(Statement.If stmt) {
     int elseLabel = generateLabel();
     int endLabel = generateLabel();
 
@@ -172,7 +179,7 @@ public class CodeGenerator implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   }
 
   @Override
-  public Void visitWhileStmt(Stmt.While stmt) {
+  public Void visitWhileStmt(Statement.While stmt) {
     int startLabel = generateLabel();
     int endLabel = generateLabel();
 
@@ -188,9 +195,9 @@ public class CodeGenerator implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   }
 
   @Override
-  public Void visitBlockStmt(Stmt.Block stmt) {
+  public Void visitBlockStmt(Statement.Block stmt) {
     emit("BEGINSCOPE");
-    for (Stmt statement : stmt.statements) {
+    for (Statement statement : stmt.statements) {
       execute(statement);
     }
     emit("ENDSCOPE");
@@ -198,7 +205,7 @@ public class CodeGenerator implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   }
 
   @Override
-  public Void visitFunctionStmt(Stmt.Function stmt) {
+  public Void visitFunctionStmt(Statement.Function stmt) {
     int functionLabel = generateLabel();
     int afterFunction = generateLabel();
 
@@ -217,7 +224,7 @@ public class CodeGenerator implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
     // Funktionskörper
-    for (Stmt statement : stmt.body) {
+    for (Statement statement : stmt.body) {
       execute(statement);
     }
 
@@ -237,7 +244,7 @@ public class CodeGenerator implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   }
 
   @Override
-  public Void visitReturnStmt(Stmt.Return stmt) {
+  public Void visitReturnStmt(Statement.Return stmt) {
     if (stmt.value != null) {
       evaluate(stmt.value);
     } else {
@@ -248,7 +255,7 @@ public class CodeGenerator implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   }
 
   @Override
-  public Void visitVarStmt(Stmt.Var stmt) {
+  public Void visitVarStmt(Statement.Var stmt) {
     if (stmt.initializer != null) {
       evaluate(stmt.initializer);
     } else {

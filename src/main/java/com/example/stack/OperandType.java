@@ -1,4 +1,4 @@
-package com.example;
+package com.example.stack;
 
 public enum OperandType {
   NONE, // Für Operationen ohne Operanden (z.B. ADD, SUB)

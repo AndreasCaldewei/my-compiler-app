@@ -1,12 +1,12 @@
-package com.example;
+package com.example.parser;
 
 import java.util.List;
 
-abstract class Stmt {
-  interface Visitor<R> {
+public abstract class Statement {
+  public interface Visitor<R> {
     R visitBlockStmt(Block stmt);
 
-    R visitExpressionStmt(Expression stmt);
+    R visitExpressionessionStmt(Expressionession stmt);
 
     R visitFunctionStmt(Function stmt);
 
@@ -19,12 +19,12 @@ abstract class Stmt {
     R visitWhileStmt(While stmt);
   }
 
-  abstract <R> R accept(Visitor<R> visitor);
+  public abstract <R> R accept(Visitor<R> visitor);
 
-  static class Block extends Stmt {
-    final List<Stmt> statements;
+  static class Block extends Statement {
+    final List<Statement> statements;
 
-    Block(List<Stmt> statements) {
+    Block(List<Statement> statements) {
       this.statements = statements;
     }
 
@@ -34,25 +34,25 @@ abstract class Stmt {
     }
   }
 
-  static class Expression extends Stmt {
-    final Expr expression;
+  static class Expressionession extends Statement {
+    final Expression expression;
 
-    Expression(Expr expression) {
+    Expressionession(Expression expression) {
       this.expression = expression;
     }
 
     @Override
     <R> R accept(Visitor<R> visitor) {
-      return visitor.visitExpressionStmt(this);
+      return visitor.visitExpressionessionStmt(this);
     }
   }
 
-  static class Function extends Stmt {
+  static class Function extends Statement {
     final Token name;
     final List<Token> params;
-    final List<Stmt> body;
+    final List<Statement> body;
 
-    Function(Token name, List<Token> params, List<Stmt> body) {
+    Function(Token name, List<Token> params, List<Statement> body) {
       this.name = name;
       this.params = params;
       this.body = body;
@@ -64,12 +64,12 @@ abstract class Stmt {
     }
   }
 
-  static class If extends Stmt {
-    final Expr condition;
-    final Stmt thenBranch;
-    final Stmt elseBranch;
+  static class If extends Statement {
+    final Expression condition;
+    final Statement thenBranch;
+    final Statement elseBranch;
 
-    If(Expr condition, Stmt thenBranch, Stmt elseBranch) {
+    If(Expression condition, Statement thenBranch, Statement elseBranch) {
       this.condition = condition;
       this.thenBranch = thenBranch;
       this.elseBranch = elseBranch;
@@ -81,11 +81,11 @@ abstract class Stmt {
     }
   }
 
-  static class Return extends Stmt {
+  static class Return extends Statement {
     final Token keyword;
-    final Expr value;
+    final Expression value;
 
-    Return(Token keyword, Expr value) {
+    Return(Token keyword, Expression value) {
       this.keyword = keyword;
       this.value = value;
     }
@@ -96,12 +96,12 @@ abstract class Stmt {
     }
   }
 
-  static class Var extends Stmt {
+  static class Var extends Statement {
     final Token name;
-    final Expr initializer;
+    final Expression initializer;
     final boolean isConst;
 
-    Var(Token name, Expr initializer, boolean isConst) {
+    Var(Token name, Expression initializer, boolean isConst) {
       this.name = name;
       this.initializer = initializer;
       this.isConst = isConst;
@@ -113,11 +113,11 @@ abstract class Stmt {
     }
   }
 
-  static class While extends Stmt {
-    final Expr condition;
-    final Stmt body;
+  static class While extends Statement {
+    final Expression condition;
+    final Statement body;
 
-    While(Expr condition, Stmt body) {
+    While(Expression condition, Statement body) {
       this.condition = condition;
       this.body = body;
     }

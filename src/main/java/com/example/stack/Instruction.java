@@ -1,4 +1,4 @@
-package com.example;
+package com.example.stack;
 
 public class Instruction {
   public final String operation;
