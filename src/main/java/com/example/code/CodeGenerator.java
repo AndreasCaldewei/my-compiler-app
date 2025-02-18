@@ -1,6 +1,5 @@
 package com.example.code;
 
-import java.lang.classfile.Instruction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +7,7 @@ import java.util.Map;
 
 import com.example.parser.*;
 import com.example.parser.*;
+import com.example.stack.*;
 
 public class CodeGenerator implements Expression.Visitor<Void>, Statement.Visitor<Void> {
   private final List<Instruction> instructions = new ArrayList<>();
@@ -154,7 +154,7 @@ public class CodeGenerator implements Expression.Visitor<Void>, Statement.Visito
   @Override
   public Void visitExpressionStmt(Statement.Expression stmt) {
     evaluate(stmt.expression);
-    emit("POP"); // Ergebnis verwerfen
+    emit("POP"); // Discard the result
     return null;
   }
 

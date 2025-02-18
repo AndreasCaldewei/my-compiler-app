@@ -6,7 +6,7 @@ public abstract class Statement {
   public interface Visitor<R> {
     R visitBlockStmt(Block stmt);
 
-    R visitExpressionessionStmt(Expressionession stmt);
+    R visitExpressionStmt(Expression stmt);
 
     R visitFunctionStmt(Function stmt);
 
@@ -21,7 +21,7 @@ public abstract class Statement {
 
   public abstract <R> R accept(Visitor<R> visitor);
 
-  static class Block extends Statement {
+  public static class Block extends Statement {
     final List<Statement> statements;
 
     Block(List<Statement> statements) {
@@ -29,25 +29,25 @@ public abstract class Statement {
     }
 
     @Override
-    <R> R accept(Visitor<R> visitor) {
+    public <R> R accept(Visitor<R> visitor) {
       return visitor.visitBlockStmt(this);
     }
   }
 
-  static class Expressionession extends Statement {
+  public static class Expression extends Statement {
     final Expression expression;
 
-    Expressionession(Expression expression) {
+    Expression(Expression expression) {
       this.expression = expression;
     }
 
     @Override
-    <R> R accept(Visitor<R> visitor) {
-      return visitor.visitExpressionessionStmt(this);
+    public <R> R accept(Visitor<R> visitor) {
+      return visitor.visitExpressionStmt(this);
     }
   }
 
-  static class Function extends Statement {
+  public class Function extends Statement {
     final Token name;
     final List<Token> params;
     final List<Statement> body;
@@ -59,15 +59,15 @@ public abstract class Statement {
     }
 
     @Override
-    <R> R accept(Visitor<R> visitor) {
+    public <R> R accept(Visitor<R> visitor) {
       return visitor.visitFunctionStmt(this);
     }
   }
 
-  static class If extends Statement {
-    final Expression condition;
-    final Statement thenBranch;
-    final Statement elseBranch;
+  public static class If extends Statement {
+    public final Expression condition;
+    public final Statement thenBranch;
+    public final Statement elseBranch;
 
     If(Expression condition, Statement thenBranch, Statement elseBranch) {
       this.condition = condition;
@@ -76,12 +76,12 @@ public abstract class Statement {
     }
 
     @Override
-    <R> R accept(Visitor<R> visitor) {
+    public <R> R accept(Visitor<R> visitor) {
       return visitor.visitIfStmt(this);
     }
   }
 
-  static class Return extends Statement {
+  public static class Return extends Statement {
     final Token keyword;
     final Expression value;
 
@@ -91,12 +91,12 @@ public abstract class Statement {
     }
 
     @Override
-    <R> R accept(Visitor<R> visitor) {
+    public <R> R accept(Visitor<R> visitor) {
       return visitor.visitReturnStmt(this);
     }
   }
 
-  static class Var extends Statement {
+  public static class Var extends Statement {
     final Token name;
     final Expression initializer;
     final boolean isConst;
@@ -108,14 +108,14 @@ public abstract class Statement {
     }
 
     @Override
-    <R> R accept(Visitor<R> visitor) {
+    public <R> R accept(Visitor<R> visitor) {
       return visitor.visitVarStmt(this);
     }
   }
 
-  static class While extends Statement {
-    final Expression condition;
-    final Statement body;
+  public static class While extends Statement {
+    public final Expression condition;
+    public final Statement body;
 
     While(Expression condition, Statement body) {
       this.condition = condition;
@@ -123,8 +123,9 @@ public abstract class Statement {
     }
 
     @Override
-    <R> R accept(Visitor<R> visitor) {
+    public <R> R accept(Visitor<R> visitor) {
       return visitor.visitWhileStmt(this);
     }
   }
+
 }

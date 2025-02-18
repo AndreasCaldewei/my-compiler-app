@@ -1,10 +1,10 @@
 package com.example.parser;
 
-import java.beans.Expression;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.errors.ParseError;
+import com.example.errors.*;
+import com.example.parser.*;
 
 public class Parser {
   private final List<Token> tokens;

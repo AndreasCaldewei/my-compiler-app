@@ -21,11 +21,11 @@ public abstract class Expression {
     R visitVariableExpression(Variable expr);
   }
 
-  abstract <R> R accept(Visitor<R> visitor);
+  public abstract <R> R accept(Visitor<R> visitor);
 
-  static class Assign extends Expression {
-    final Token name;
-    final Expression value;
+  public static class Assign extends Expression {
+    public final Token name;
+    public final Expression value;
 
     Assign(Token name, Expression value) {
       this.name = name;
@@ -38,10 +38,10 @@ public abstract class Expression {
     }
   }
 
-  static class Binary extends Expression {
-    final Expression left;
-    final Token operator;
-    final Expression right;
+  public static class Binary extends Expression {
+    public final Expression left;
+    public final Token operator;
+    public final Expression right;
 
     Binary(Expression left, Token operator, Expression right) {
       this.left = left;
@@ -55,10 +55,10 @@ public abstract class Expression {
     }
   }
 
-  static class Call extends Expression {
-    final Expression callee;
+  public static class Call extends Expression {
+    public final Expression callee;
     final Token paren;
-    final List<Expression> arguments;
+    public final List<Expression> arguments;
 
     Call(Expression callee, Token paren, List<Expression> arguments) {
       this.callee = callee;
@@ -72,8 +72,8 @@ public abstract class Expression {
     }
   }
 
-  static class Grouping extends Expression {
-    final Expression expression;
+  public static class Grouping extends Expression {
+    public final Expression expression;
 
     Grouping(Expression expression) {
       this.expression = expression;
@@ -85,8 +85,8 @@ public abstract class Expression {
     }
   }
 
-  static class Literal extends Expression {
-    final Object value;
+  public static class Literal extends Expression {
+    public final Object value;
 
     Literal(Object value) {
       this.value = value;
@@ -98,10 +98,10 @@ public abstract class Expression {
     }
   }
 
-  static class Logical extends Expression {
-    final Expression left;
-    final Token operator;
-    final Expression right;
+  public static class Logical extends Expression {
+    public final Expression left;
+    public final Token operator;
+    public final Expression right;
 
     Logical(Expression left, Token operator, Expression right) {
       this.left = left;
@@ -115,9 +115,9 @@ public abstract class Expression {
     }
   }
 
-  static class Unary extends Expression {
-    final Token operator;
-    final Expression right;
+  public static class Unary extends Expression {
+    public final Token operator;
+    public final Expression right;
 
     Unary(Token operator, Expression right) {
       this.operator = operator;
@@ -130,8 +130,8 @@ public abstract class Expression {
     }
   }
 
-  static class Variable extends Expression {
-    final Token name;
+  public static class Variable extends Expression {
+    public Token name;
 
     Variable(Token name) {
       this.name = name;
