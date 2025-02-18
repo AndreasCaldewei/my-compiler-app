@@ -5,7 +5,6 @@ public enum OperandType {
   NUMBER, // Für numerische Werte
   STRING, // Für Strings (z.B. Variablennamen)
   BOOLEAN, // Für boolesche Werte
-  LABEL, // Für Sprungmarken
   FUNCTION; // Für Funktionsreferenzen
 
   public static OperandType getType(Object value) {
@@ -17,8 +16,6 @@ public enum OperandType {
       return STRING;
     if (value instanceof Boolean)
       return BOOLEAN;
-    if (value instanceof Integer && value.toString().startsWith("L"))
-      return LABEL;
     if (value instanceof Integer)
       return FUNCTION;
     throw new IllegalArgumentException("Unknown operand type: " + value.getClass());

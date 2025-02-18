@@ -62,9 +62,6 @@ public class Instruction {
   }
 
   public int getLabelOperand() {
-    if (operandType != OperandType.LABEL) {
-      throw new IllegalStateException("Operand is not a label, it is: " + operandType);
-    }
-    return (Integer) operand;
+    return (int) getNumberOperand();
   }
 }
