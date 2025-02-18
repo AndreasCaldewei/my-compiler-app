@@ -5,6 +5,11 @@ import org.junit.Test;
 import org.junit.Before;
 import java.util.List;
 
+import com.example.code.*;
+import com.example.parser.*;
+import com.example.scanner.*;
+import com.example.stack.*;
+
 public class CodeGeneratorTest {
   private CodeGenerator generator;
 
@@ -33,12 +38,12 @@ public class CodeGeneratorTest {
     List<Instruction> instructions = generateCode(source);
     printInstructions(instructions);
 
-    assertEquals("PUSH", instructions.get(0).operation);
+    assertEquals(Operation.PUSH, instructions.get(0).operation);
     assertEquals(5.0, ((Double) instructions.get(0).operand).doubleValue(), 0.001);
-    assertEquals("PUSH", instructions.get(1).operation);
+    assertEquals(Operation.PUSH, instructions.get(1).operation);
     assertEquals(3.0, ((Double) instructions.get(1).operand).doubleValue(), 0.001);
-    assertEquals("ADD", instructions.get(2).operation);
-    assertEquals("STORE", instructions.get(3).operation);
+    assertEquals(Operation.ADD, instructions.get(2).operation);
+    assertEquals(Operation.STORE, instructions.get(3).operation);
   }
 
   @Test
@@ -47,9 +52,9 @@ public class CodeGeneratorTest {
     List<Instruction> instructions = generateCode(source);
     printInstructions(instructions);
 
-    assertEquals("PUSH", instructions.get(0).operation);
-    assertEquals("PUSH", instructions.get(1).operation);
-    assertEquals("MUL", instructions.get(2).operation);
+    assertEquals(Operation.PUSH, instructions.get(0).operation);
+    assertEquals(Operation.PUSH, instructions.get(1).operation);
+    assertEquals(Operation.MUL, instructions.get(2).operation);
   }
 
   @Test
@@ -58,9 +63,9 @@ public class CodeGeneratorTest {
     List<Instruction> instructions = generateCode(source);
     printInstructions(instructions);
 
-    assertEquals("PUSH", instructions.get(0).operation);
-    assertEquals("PUSH", instructions.get(1).operation);
-    assertEquals("DIV", instructions.get(2).operation);
+    assertEquals(Operation.PUSH, instructions.get(0).operation);
+    assertEquals(Operation.PUSH, instructions.get(1).operation);
+    assertEquals(Operation.DIV, instructions.get(2).operation);
   }
 
   @Test
@@ -72,9 +77,9 @@ public class CodeGeneratorTest {
     boolean hasJmpf = false;
     boolean hasJmp = false;
     for (Instruction inst : instructions) {
-      if (inst.operation.equals("JMPF"))
+      if (inst.operation == Operation.JMPF)
         hasJmpf = true;
-      if (inst.operation.equals("JMP"))
+      if (inst.operation == Operation.JMP)
         hasJmp = true;
     }
     assertTrue("Should contain JMPF instruction", hasJmpf);
@@ -91,11 +96,11 @@ public class CodeGeneratorTest {
     boolean hasJmpf = false;
     boolean hasJmp = false;
     for (Instruction inst : instructions) {
-      if (inst.operation.equals("LABEL"))
+      if (inst.operation == Operation.LABEL)
         hasLabel = true;
-      if (inst.operation.equals("JMPF"))
+      if (inst.operation == Operation.JMPF)
         hasJmpf = true;
-      if (inst.operation.equals("JMP"))
+      if (inst.operation == Operation.JMP)
         hasJmp = true;
     }
     assertTrue("Should contain LABEL instruction", hasLabel);
@@ -112,9 +117,9 @@ public class CodeGeneratorTest {
     boolean hasStoreFun = false;
     boolean hasRet = false;
     for (Instruction inst : instructions) {
-      if (inst.operation.equals("STOREFUN"))
+      if (inst.operation == Operation.STOREFUN)
         hasStoreFun = true;
-      if (inst.operation.equals("RET"))
+      if (inst.operation == Operation.RET)
         hasRet = true;
     }
     assertTrue("Should contain STOREFUN instruction", hasStoreFun);
@@ -127,15 +132,15 @@ public class CodeGeneratorTest {
     List<Instruction> instructions = generateCode(source);
     printInstructions(instructions);
 
-    // Prüfen der ersten Zuweisung
-    assertEquals("PUSH", instructions.get(0).operation);
-    assertEquals("STORE", instructions.get(1).operation);
+    // Check first assignment
+    assertEquals(Operation.PUSH, instructions.get(0).operation);
+    assertEquals(Operation.STORE, instructions.get(1).operation);
 
-    // Prüfen der zweiten Zuweisung
-    assertEquals("LOAD", instructions.get(2).operation);
-    assertEquals("PUSH", instructions.get(3).operation);
-    assertEquals("ADD", instructions.get(4).operation);
-    assertEquals("STORE", instructions.get(5).operation);
+    // Check second assignment
+    assertEquals(Operation.LOAD, instructions.get(2).operation);
+    assertEquals(Operation.PUSH, instructions.get(3).operation);
+    assertEquals(Operation.ADD, instructions.get(4).operation);
+    assertEquals(Operation.STORE, instructions.get(5).operation);
   }
 
   @Test
@@ -144,9 +149,9 @@ public class CodeGeneratorTest {
     List<Instruction> instructions = generateCode(source);
     printInstructions(instructions);
 
-    assertEquals("PUSH", instructions.get(0).operation);
-    assertEquals("PUSH", instructions.get(1).operation);
-    assertEquals("GT", instructions.get(2).operation);
+    assertEquals(Operation.PUSH, instructions.get(0).operation);
+    assertEquals(Operation.PUSH, instructions.get(1).operation);
+    assertEquals(Operation.GT, instructions.get(2).operation);
   }
 
   @Test
@@ -155,9 +160,9 @@ public class CodeGeneratorTest {
     List<Instruction> instructions = generateCode(source);
     printInstructions(instructions);
 
-    assertEquals("PUSH", instructions.get(0).operation);
+    assertEquals(Operation.PUSH, instructions.get(0).operation);
     assertEquals(true, instructions.get(0).operand);
-    assertEquals("PUSH", instructions.get(1).operation);
+    assertEquals(Operation.PUSH, instructions.get(1).operation);
     assertEquals(false, instructions.get(1).operand);
   }
 
@@ -170,9 +175,9 @@ public class CodeGeneratorTest {
     boolean hasBeginScope = false;
     boolean hasEndScope = false;
     for (Instruction inst : instructions) {
-      if (inst.operation.equals("BEGINSCOPE"))
+      if (inst.operation == Operation.BEGINSCOPE)
         hasBeginScope = true;
-      if (inst.operation.equals("ENDSCOPE"))
+      if (inst.operation == Operation.ENDSCOPE)
         hasEndScope = true;
     }
     assertTrue("Should contain BEGINSCOPE instruction", hasBeginScope);
