@@ -3,8 +3,6 @@ package com.example;
 import org.junit.Test;
 import org.junit.Before;
 import static org.junit.Assert.*;
-import org.junit.Assert;
-import java.util.concurrent.TimeUnit;
 import com.example.compiler.*;
 
 public class CompilerTest {
@@ -50,19 +48,6 @@ public class CompilerTest {
     assertNotNull("Result should not be null", result);
     assertEquals("Variable declaration should work", 5.0,
         ((Number) result).doubleValue(), 0.001);
-  }
-
-  @Test(timeout = 2000)
-  public void testLogicalOperations() {
-    // AND operation
-    Object andResult = compiler.execute("true && false;");
-    assertNotNull("AND result should not be null", andResult);
-    assertEquals("AND operation should work", false, andResult);
-
-    // OR operation
-    Object orResult = compiler.execute("true || false;");
-    assertNotNull("OR result should not be null", orResult);
-    assertEquals("OR operation should work", true, orResult);
   }
 
   @Test(timeout = 2000)

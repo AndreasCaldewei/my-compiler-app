@@ -188,6 +188,7 @@ public class StackMachine {
 
       // Control flow
       case JMP: {
+        // TODO: This is really fixy
         int labelTarget = instruction.getLabelOperand();
         boolean found = false;
         for (int j = 0; j < instructions.size(); j++) {

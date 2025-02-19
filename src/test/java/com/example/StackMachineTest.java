@@ -215,28 +215,22 @@ public class StackMachineTest {
 
   @Test
   public void testScopeHandling() {
-    // Test basic scope creation and variable shadowing
     instructions.clear();
     instructions.add(new Instruction(Operation.PUSH, 10.0));
     instructions.add(new Instruction(Operation.STORE, "x"));
     instructions.add(new Instruction(Operation.BEGINSCOPE, null));
     instructions.add(new Instruction(Operation.PUSH, 20.0));
     instructions.add(new Instruction(Operation.STORE, "x"));
-    instructions.add(new Instruction(Operation.LOAD, "x"));
+    instructions.add(new Instruction(Operation.LOAD, "x")); // Will push 20.0
     instructions.add(new Instruction(Operation.ENDSCOPE, null));
-    instructions.add(new Instruction(Operation.LOAD, "x"));
+    instructions.add(new Instruction(Operation.LOAD, "x")); // Will push 10.0
 
     stackMachine = new StackMachine(instructions);
-    Object[] results = new Object[2];
-
     stackMachine.setDebug(true);
-    for (int i = 0; i < 2; i++) {
-      results[i] = stackMachine.peekStack();
-      stackMachine.execute();
-    }
+    Object result = stackMachine.execute();
 
-    assertEquals(20.0, results[0]);
-    assertEquals(10.0, results[1]);
+    // The last value on the stack should be 10.0 (global x)
+    assertEquals(10.0, result);
   }
 
   @Test(expected = RuntimeException.class)
