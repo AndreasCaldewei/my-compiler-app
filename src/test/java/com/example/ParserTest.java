@@ -1,12 +1,16 @@
 package com.example;
 
-import com.example.parser.*;
-
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import java.util.List;
 import java.util.ArrayList;
+import com.example.parser.Parser;
+import com.example.parser.Statement;
+import com.example.scanner.Token;
+import com.example.scanner.TokenType;
+import com.example.parser.Expression;
+import com.example.parser.ParseError;
 
 public class ParserTest {
   private Parser parser;
@@ -23,10 +27,6 @@ public class ParserTest {
 
   private void addToken(TokenType type, Object literal) {
     tokens.add(new Token(type, literal.toString(), literal, 1));
-  }
-
-  private void addToken(TokenType type, String lexeme, Object literal) {
-    tokens.add(new Token(type, lexeme, literal, 1));
   }
 
   @Test

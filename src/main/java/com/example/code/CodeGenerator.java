@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.example.parser.*;
 import com.example.scanner.Token;
+import com.example.scanner.TokenType;
 
 public class CodeGenerator implements Expression.Visitor<Void>, Statement.Visitor<Void> {
   private final List<Instruction> instructions = new ArrayList<>();

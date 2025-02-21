@@ -6,10 +6,9 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.example.code.Operation;
-import com.example.stack.Instruction;
 import com.example.stack.StackMachine;
+import com.example.code.Operation;
+import com.example.code.Instruction;
 
 public class StackMachineTest {
   private StackMachine stackMachine;

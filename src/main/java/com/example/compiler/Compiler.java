@@ -9,6 +9,7 @@ import com.example.scanner.Scanner;
 import com.example.stack.StackMachine;
 import com.example.scanner.Token;
 import com.example.scanner.TokenType;
+import com.example.code.Instruction;
 
 public class Compiler {
   private boolean debug = false;

@@ -5,7 +5,6 @@ import org.junit.Test;
 import java.util.List;
 
 import com.example.scanner.*;
-import com.example.parser.*;
 
 public class ScannerTest {
   private Scanner scanner;
