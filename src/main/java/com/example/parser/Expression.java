@@ -1,5 +1,6 @@
 package com.example.parser;
 
+import com.example.scanner.Token;
 import java.util.List;
 
 public abstract class Expression {

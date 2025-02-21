@@ -1,4 +1,4 @@
-package com.example.parser;
+package com.example.scanner;
 
 public enum TokenType {
   // Single-character tokens

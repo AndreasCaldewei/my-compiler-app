@@ -3,6 +3,9 @@ package com.example.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.scanner.Token;
+import com.example.scanner.TokenType;
+
 public class Parser {
   private final List<Token> tokens;
   private int current = 0;

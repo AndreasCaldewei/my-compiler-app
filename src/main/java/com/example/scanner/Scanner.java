@@ -5,9 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.example.parser.Token;
-import com.example.parser.TokenType;
-
 public class Scanner {
   private final String source;
   private final List<Token> tokens = new ArrayList<>();

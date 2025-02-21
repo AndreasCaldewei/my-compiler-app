@@ -5,10 +5,10 @@ import java.util.List;
 import com.example.code.CodeGenerator;
 import com.example.parser.Parser;
 import com.example.parser.Statement;
-import com.example.parser.Token;
 import com.example.scanner.Scanner;
-import com.example.stack.Instruction;
 import com.example.stack.StackMachine;
+import com.example.scanner.Token;
+import com.example.scanner.TokenType;
 
 public class Compiler {
   private boolean debug = false;

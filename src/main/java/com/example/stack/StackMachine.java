@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Stack;
 import com.example.code.Operation;
+import com.example.code.Instruction;
 
 public class StackMachine {
   private final Stack<Object> stack = new Stack<>();

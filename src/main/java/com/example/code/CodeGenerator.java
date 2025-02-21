@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.parser.*;
-import com.example.stack.Instruction;
+import com.example.scanner.Token;
 
 public class CodeGenerator implements Expression.Visitor<Void>, Statement.Visitor<Void> {
   private final List<Instruction> instructions = new ArrayList<>();

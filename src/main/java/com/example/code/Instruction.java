@@ -1,6 +1,4 @@
-package com.example.stack;
-
-import com.example.code.Operation;
+package com.example.code;
 
 public class Instruction {
   public final Operation operation;
